@@ -22,6 +22,7 @@
                (:file "api"))
   :depends-on ((:interface :database)
                (:interface :auth)
+               :form-fiddle
                :r-data-model
                :r-clip
                :ratify
