@@ -19,8 +19,8 @@
   (case type
     ((NIL T) 'identity)
     (user 'user:id)
-    (integer '(lambda (x) (when x (parse-integer x))))
-    (time '(lambda (x) (when x (parse-integer x))))
+    (integer '(lambda (x) (etypecase x (string (parse-integer x)) (integer x) (null))))
+    (time '(lambda (x) (etypecase x (string (parse-integer x)) (integer x) (null))))
     (T `(lambda (x) (dm:id (,(name- 'ensure type) x))))))
 
 (defun format-last-modified (timestamp)

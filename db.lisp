@@ -175,9 +175,18 @@
   :url ("keygen/project/~a" "project"))
 
 (define-object package
-    ((project project) title (description T ""))
+    ((project project) title (description T "") (file[] NIL NIL))
   :subobjects (package-files key)
-  :url ("keygen/project/~a" "project"))
+  :url ("keygen/project/~a" "project")
+  (:make (package)
+         (dolist (file file[])
+           (db:insert 'package-files `(("package" . ,(dm:id package))
+                                       ("file" . ,(db:ensure-id file))))))
+  (:edit (package)
+         (when file[]-p
+           (dolist (file file[])
+             (db:insert 'package-files `(("package" . ,(dm:id package))
+                                         ("file" . ,(db:ensure-id file))))))))
 
 (defun list-packages (project)
   (let ((project (ensure-project project)))

@@ -57,7 +57,7 @@
                 <button class="delete"><i class="fas fa-trash"></i></button>
               </li>
             </ul>
-            <div class="file-add">
+            <div class="file-add oneline">
               <select iterate="(** :files)">
                 <option lquery="(val _id) (text filename)">FILE</option>
               </select>
@@ -86,7 +86,7 @@
     <h3>Files</h3>
     <ul class="files" iterate="files">
       <li class="file">
-        <form method="post" @action="keygen/api/keygen/file/edit">
+        <form method="post" @action="keygen/api/keygen/file/edit" class="oneline">
           <input type="hidden" name="browser" value="true" />
           <input type="hidden" name="file" lquery="(val _id)" />
           <input type="text" name="filename" required maxlength="128" lquery="(val filename)" />
@@ -94,7 +94,7 @@
           <span class="download-count" lquery="(text download-count)">0</span>
           <input type="submit" value="Save" />
         </form>
-        <form method="post" enctype="multipart/form-data" @action="keygen/api/keygen/file/upload">
+        <form method="post" enctype="multipart/form-data" @action="keygen/api/keygen/file/upload" class="oneline">
           <input type="hidden" name="browser" value="true" />
           <input type="hidden" name="file" lquery="(val _id)" />
           <input type="file" name="payload" required />
