@@ -16,4 +16,4 @@
   (defaulted-config "Keygen" :title)
   (defaulted-config "Shirakumo" :copyright)
   (defaulted-config (make-random-string 32) :private-key)
-  (defaulted-config (make-random-string 32) :salt))
+  (defaulted-config (make-random-string 32 "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") :salt))

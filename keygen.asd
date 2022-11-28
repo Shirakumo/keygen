@@ -17,10 +17,11 @@
   :source-control (:git "https://github.com/shirakumo/keygen.git")
   :serial T
   :components ((:file "module")
+               (:file "toolkit")
                (:file "db")
                (:file "front")
                (:file "api"))
-  :depends-on ((:interface :database)
+  :depends-on ((:interface :relational-database)
                (:interface :auth)
                :form-fiddle
                :r-data-model
@@ -28,4 +29,5 @@
                :ratify
                :alexandria
                :crypto-shortcuts
+               :local-time
                :cl-ppcre))
