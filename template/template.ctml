@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8"/>
+    <title><c:splice lquery="(text page)"/> - <c:splice lquery="(text title)"/></title>
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="index, follow" />
+    <link rel="stylesheet" type="text/css" href="../static/keygen.css" @href="/static/keygen/keygen.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="api-root" @href="keygen/api/keygen/"/>
+    <meta name="viewport" content="width=device-width"/>
+  </head>
+  <body>
+    <header>
+      <c:when test="project">
+        <img @src="keygen/api/keygen/project/cover?project={0} (clip project :_id)" alt="Cover Image" class="cover" />
+      </c:when>
+      <h1><a href="#" @href="keygen/" lquery="(text title)">Keygen Software Distribution</a></h1>
+      <h2>
+        <c:when test="up">
+          <a lquery="(attr :href up) (text up-text)"></a>
+        </c:when>
+        <c:splice lquery="(text page)"/>
+      </h2>
+    </header>
+    <main>
+      <div class="box info" lquery='(text (post/get "message"))'></div>
+      <div class="box error" lquery='(text (post/get "error"))'></div>
+      <c:splice lquery="(html content)"/>
+      <script @src="/static/keygen/keygen.js"></script>
+    </main>
+    <footer>
+      &copy; <time lquery="(time T)">2019</time> <c:splice lquery="(text copyright)">Shirakumo</c:splice><br/>
+      Running on <a href="https://shirakumo.org/projects/keygen">Keygen <c:splice lquery="(text version)">0.0.0</c:splice></a>
+    </footer>
+  </body>
+</html>

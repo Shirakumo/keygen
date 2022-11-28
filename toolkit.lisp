@@ -6,7 +6,7 @@
 
 (in-package #:keygen)
 
-(defun name (&rest parts)
+(defun name- (&rest parts)
   (intern (format NIL "~{~a~^-~}" parts)))
 
 (defun name/ (&rest parts)
@@ -21,7 +21,7 @@
     (user 'user:id)
     (integer '(lambda (x) (when x (parse-integer x))))
     (time '(lambda (x) (when x (parse-integer x))))
-    (T `(lambda (x) (dm:id (,(name 'ensure type) x))))))
+    (T `(lambda (x) (dm:id (,(name- 'ensure type) x))))))
 
 (defun format-last-modified (timestamp)
   (local-time:format-timestring

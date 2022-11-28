@@ -1,0 +1,127 @@
+<article class="page project overview">
+  <c:using value="project">
+    <nav class="panel wide">
+      <a class="button" href="#" @href="keygen/project/{0}/keys title">
+        <i class="fas fa-key"></i>
+        Keys
+      </a>
+      <a class="button" href="#" @href="keygen/project/{0}/access title">
+        <i class="fas fa-users"></i>
+        Access
+      </a>
+      <a class="button confirm" href="#" @href="keygen/api/keygen/project/delete?project={0}&browser=true _id">
+        <i class="fas fa-trash"></i>
+        Delete
+      </a>
+    </nav>
+    <form class="panel wide" method="post" enctype="multipart/form-data" @action="keygen/api/keygen/project/edit">
+      <input type="hidden" name="browser" value="true" />
+      <input type="hidden" name="project" lquery="(val _id)" />
+      <div class="row">
+        <label>Title</label>
+        <input type="text" name="title" lquery="(val title)" required maxlength="64" />
+      </div>
+      <div class="row">
+        <label>Description</label>
+        <textarea name="description" lquery="(text description)"></textarea>
+      </div>
+      <div class="row">
+        <label>Cover</label>
+        <input type="file" name="cover" />
+      </div>
+      <input type="submit" value="Save" />
+    </form>
+  </c:using>
+  <div class="panel wide">
+    <h3>Packages</h3>
+    <ul class="packages" iterate="packages">
+      <li class="package">
+        <form method="post" @action="keygen/api/keygen/package/edit">
+          <input type="hidden" name="browser" value="true" />
+          <input type="hidden" name="package" lquery="(val _id)" />
+          <div class="row">
+            <label>Title</label>
+            <input type="text" name="title" required maxlength="64" lquery="(val title)" />
+          </div>
+          <div class="row">
+            <label>Description</label>
+            <textarea name="description" lquery="(text description)"></textarea>
+          </div>
+          <div class="row dynamic-list">
+            <label>Files</label>
+            <ul class="files" iterate="(keygen::list-files *)">
+              <li class="file">
+                <input type="hidden" name="file[]" lquery="(val _id)">
+                <span class="filename" lquery="(text filename)"></span>
+                <span class="types" lquery="(text types)"></span>
+                <button class="delete"><i class="fas fa-trash"></i></button>
+              </li>
+            </ul>
+            <div class="file-add">
+              <select iterate="(** :files)">
+                <option lquery="(val _id) (text filename)">FILE</option>
+              </select>
+              <button class="add">Add</button>
+            </div>
+          </div>
+          <input type="submit" value="Save"/>
+        </form>
+      </li>
+    </ul>
+    <form method="post" @action="keygen/api/keygen/package/new">
+      <input type="hidden" name="browser" value="true" />
+      <input type="hidden" name="project" lquery="(val (clip project :_id))" />
+      <div class="row">
+        <label>Title</label>
+        <input type="text" name="title" placeholder="Full version" required maxlength="64" />
+      </div>
+      <div class="row">
+        <label>Description</label>
+        <textarea name="description" placeholder="The full release version of the software package"></textarea>
+      </div>
+      <input type="submit" value="Create"/>
+    </form>
+  </div>
+  <div class="panel wide">
+    <h3>Files</h3>
+    <ul class="files" iterate="files">
+      <li class="file">
+        <form method="post" @action="keygen/api/keygen/file/edit">
+          <input type="hidden" name="browser" value="true" />
+          <input type="hidden" name="file" lquery="(val _id)" />
+          <input type="text" name="filename" required maxlength="128" lquery="(val filename)" />
+          <input type="text" name="types" maxlength="16" lquery="(val types)" />
+          <span class="download-count" lquery="(text download-count)">0</span>
+          <input type="submit" value="Save" />
+        </form>
+        <form method="post" enctype="multipart/form-data" @action="keygen/api/keygen/file/upload">
+          <input type="hidden" name="browser" value="true" />
+          <input type="hidden" name="file" lquery="(val _id)" />
+          <input type="file" name="payload" required />
+          <span class="last-modified" lquery="(time last-modified)">2022.12.1</span>
+          <input type="submit" value="Upload" />
+        </form>
+        <a class="button confirm" href="#" @href="keygen/api/keygen/file/delete?file={0}&browser=true _id">
+          <i class="fas fa-trash"></i>
+        </a>
+      </li>
+    </ul>
+    <form method="post" @action="keygen/api/keygen/file/new">
+      <input type="hidden" name="browser" value="true" />
+      <input type="hidden" name="project" lquery="(val (clip project :_id))" />
+      <div class="row">
+        <label>Filename</label>
+        <input type="text" name="filename" placeholder="project.zip" required maxlength="64" />
+      </div>
+      <div class="row">
+        <label>Payload Types</label>
+        <input type="text" name="types" maxlength="16" />
+      </div>
+      <div class="row">
+        <label>File</label>
+        <input type="file" name="payload" required />
+      </div>
+      <input type="submit" value="Create"/>
+    </form>
+  </div>
+</article>

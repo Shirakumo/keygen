@@ -1,0 +1,29 @@
+<article class="page access">
+  <c:using value="key">
+    <form class="panel wide claim" method="post" action="keygen/api/keygen/key/claim">
+      <input type="hidden" name="browser" value="true" />
+      <input type="hidden" name="code" lquery="(val code)" />
+      <c:if test="owner-email">
+        <c:then>
+          The key is claimed by <c:splice lquery="owner-email"/>
+        </c:then>
+        <c:else>
+          Claim the key to your email address:
+          <input type="email" name="email" placeholder="john@example.com" required maxlength="128" />
+          <input type="submit" value="Claim" />
+        </c:else>
+      </c:if>
+    </form>
+  </c:using>
+  <div class="panel wide">
+    <h3>Files</h3>
+    <ul class="files" iterate="files">
+      <li>
+        <a href="#" @href="keygen/api/keygen/key/resolve?code={0}&file={1}&authcode={2} (** :code) _id (** :authcode)"
+           lquery="(text filename)"></a>
+        <span class="types" lquery="(text types)" />
+        <time class="time" lquery="(time last-modified)" />
+      </li>
+    </ul>
+  </div>
+</article>

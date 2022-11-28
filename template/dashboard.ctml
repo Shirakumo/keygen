@@ -1,0 +1,24 @@
+<article class="page dashboard">
+  <div class="panel wide">
+    <ul class="projects" iterate="projects">
+      <li>
+        <a href="#" @href="keygen/project/{0} title" lquery="(text title)"></a>
+      </li>
+    </ul>
+    <form method="post" @action="keygen/api/keygen/project/new">
+      <input type="hidden" name="browser" value="true" />
+      <div class="row">
+        <label>Title</label><input type="text" name="title" placeholder="Title..." required maxlength="64" />
+      </div>
+      <div class="row">
+        <label>Description</label>
+        <textarea name="description" placeholder="Description..."></textarea>
+      </div>
+      <div class="row">
+        <label>Cover</label>
+        <input type="file" name="cover" />
+      </div>
+      <input type="submit" value="New" />
+    </form>
+  </div>
+</article>

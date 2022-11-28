@@ -58,47 +58,52 @@
 (defmacro define-object (table keys &body body)
   (form-fiddle:with-body-options (body other-options subobjects url) body
     (declare (ignore other-options))
-    (let* ((keys (mapcar #'enlist keys))
+    (let* ((keys (loop for key in keys collect (if (listp key) key (list key T))))
            (req (loop for key in keys when (< (length key) 3) collect (first key)))
-           (opt (loop for key in keys when (= (length key) 3) collect (list (first key) (third key))))
+           (opt (loop for key in keys when (<= 3 (length key)) collect (list (first key) (third key))))
            (urlargs (loop for field in (rest url)
                           collect `(dm:field object ,field)))
            (url (first url)))
       `(progn
-         (defun ,(name 'make table) (,@req &key ,@opt)
+         (defun ,(name- 'make table) (,@req &key ,@opt)
            (let ((object (dm:hull ',table)))
              ,@(loop for (key type) in keys
+                     when type
                      collect `(setf (dm:field object ,(string-downcase key)) (,(converter type) ,key)))
              (dm:insert object)
              ,(when (assoc :make body)
                 `((lambda ,@(rest (assoc :make body))) object))
              object))
 
-         (defun ,(name 'ensure table) (object)
+         (defun ,(name- 'ensure table) (object)
            (etypecase object
              (dm:data-model
               (ecase (dm:collection object)
                 (,table object)
                 ,@(loop for subobject in subobjects
-                        collect `(,subobject (,(name 'ensure table) (dm:field object ,(string table)))))))
+                        collect `(,subobject (,(name- 'ensure table) (dm:field object ,(string-downcase table)))))))
              (db:id
               (or (dm:get-one ',table (db:query (:= '_id object)))
                   (error 'radiance:request-not-found)))
              (T
-              (,(name 'ensure table) (db:ensure-id object)))))
+              (,(name- 'ensure table) (db:ensure-id object)))))
 
-         (defun ,(name 'edit table) (object &key ,@(loop for (key) in keys
-                                                         collect `(,key NIL ,(name key 'p))))
+         (defun ,(name- 'edit table) (object &key ,@(loop for (key) in keys
+                                                         collect `(,key NIL ,(name- key 'p))))
            (db:with-transaction ()
-             (let ((object (,(name 'ensure table) object)))
+             (let ((object (,(name- 'ensure table) object)))
                ,@(loop for (key type) in keys
-                       collect `(when ,(name key 'p)
+                       when type
+                       collect `(when ,(name- key 'p)
                                   (setf (dm:field object ,(string-downcase key)) (,(converter type) ,key))))
-               (dm:save object))))
+               (dm:save object)
+               ,(when (assoc :edit body)
+                  `((lambda ,@(rest (assoc :edit body))) object))
+               object)))
 
-         (defun ,(name 'delete table) (object)
+         (defun ,(name- 'delete table) (object)
            (db:with-transaction ()
-             (let ((object (,(name 'ensure table) object)))
+             (let ((object (,(name- 'ensure table) object)))
                ,@(loop for subobject in subobjects
                        collect `(db:remove ',subobject (db:query (:= ',table (dm:id object)))))
                (dm:delete object)
@@ -107,35 +112,44 @@
                object)))
 
 
-         (define-api ,(name/ 'keygen table) (id) (:access (perm keygen))
-           (api-output (,(name 'ensure table) id)))
+         (define-api ,(name/ 'keygen table) (,table) (:access (perm keygen))
+           (api-output (,(name- 'ensure table) ,table)))
 
          (define-api ,(name/ 'keygen table 'new) ,req (:access (perm keygen))
            (let* ((kargs (extract-kargs ',(loop for (key) in opt collect (intern (string key) "KEYWORD"))))
-                  (object (apply #',(name 'make table) ,@req kargs)))
+                  (object (apply #',(name- 'make table) ,@req kargs)))
              (output object
                      ,(format NIL "~@(~a~) created" table)
                      ,url ,@urlargs)))
 
-         (define-api ,(name/ 'keygen table 'edit) (id) (:access (perm keygen))
+         (define-api ,(name/ 'keygen table 'edit) (,table) (:access (perm keygen))
            (let* ((kargs (extract-kargs ',(loop for (key) in keys collect (intern (string key) "KEYWORD"))))
-                  (object (apply #',(name 'edit table) id kargs)))
+                  (object (apply #',(name- 'edit table) ,table kargs)))
              (output object
                      ,(format NIL "~@(~a~) edited" table)
                      ,url ,@urlargs)))
 
-         (define-api ,(name/ 'keygen table 'delete) (id) (:access (perm keygen))
-           (let ((object (,(name 'delete table) id)))
+         (define-api ,(name/ 'keygen table 'delete) (,table) (:access (perm keygen))
+           (let ((object (,(name- 'delete table) ,table)))
              (output object
                      ,(format NIL "~@(~a~) deleted" table)
                      ,url ,@urlargs)))))))
 
 (define-object project
-    ((author user (auth:current)) title (description T ""))
+    ((author user (auth:current)) title (description T "") (cover NIL NIL))
   :subobjects (access package file)
   :url ("keygen/project/~a" "_id")
   (:make (project)
-         (ensure-directories-exist (project-pathname project)))
+         (ensure-directories-exist (project-pathname project))
+         (when cover
+           (if (string= "image/png" (third cover))
+               (uiop:copy-file (first cover) (project-cover project))
+               (error "Bad image format. Requires png."))))
+  (:edit (project)
+         (when cover
+           (if (string= "image/png" (third cover))
+               (uiop:copy-file (first cover) (project-cover project))
+               (error "Bad image format. Requires png."))))
   (:delete (project)
            (uiop:delete-directory-tree (project-pathname project) :validate (constantly T) :if-does-not-exist :ignore)))
 
@@ -149,9 +163,12 @@
          (path (make-pathname :directory (list :relative (princ-to-string (dm:id project))))))
     (environment-module-pathname #.*package* :data path)))
 
+(defun project-cover (project)
+  (make-pathname :name "cover" :type "png" :defaults (project-pathname project)))
+
 (defun list-projects ()
   (dm:get 'project (db:query :all)
-          :sort '(("title" . :ASC))))
+          :sort '(("title" :ASC))))
 
 (define-object access
     ((project project) (user user) (level integer 0))
@@ -164,13 +181,13 @@
 
 (defun list-packages (project)
   (let ((project (ensure-project project)))
-    (dm:get 'package (db:query (:= 'project (dm:id thing)))
-            :sort '(("title" . :ASC)))))
+    (dm:get 'package (db:query (:= 'project (dm:id project)))
+            :sort '(("title" :asc)))))
 
 (define-object file
     ((project project) filename types (download-count integer 0) (last-modified time (get-universal-time)))
   :subobjects (package-files)
-  :url ("keygen/package/~a" "package")
+  :url ("keygen/project/~a" "project")
   (:delete (file)
            (uiop:delete-file-if-exists (file-pathname file))))
 
@@ -186,9 +203,9 @@
     (dm:data-model
      (ecase (dm:collection thing)
        (project (dm:get 'file (db:query (:= 'project (dm:id thing)))
-                        :sort '(("filename" . :ASC))))
-       (package (dm:get (rdb:join (file _id) (package-files key)) (db:query (:= 'package (dm:id thing)))
-                        :sort '(("filename" . :ASC))))))
+                        :sort '(("filename" :asc))))
+       (package (dm:get (rdb:join (file _id) (package-files file)) (db:query (:= 'package (dm:id thing)))
+                        :sort '(("filename" :asc))))))
     (T (list-files (ensure-project thing)))))
 
 (define-object key
@@ -221,7 +238,7 @@
     (dm:data-model
      (ecase (dm:collection thing)
        (project (dm:get 'key (db:query (:= 'project (dm:id thing)))
-                        :sort '(("time" . :ASC))))
+                        :sort '(("time" :asc))))
        (package (dm:get 'key (db:query (:= 'package (dm:id thing)))
-                        :sort '(("time" . :ASC))))))
+                        :sort '(("time" :asc))))))
     (T (list-keys (ensure-project thing)))))
