@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title lquery="(text subject)">Subject</title>
+    <style type="text/css">
+      html{
+          background: #F0F0F0;
+          font-size: 14pt;
+          font-family: sans-serif;
+      }
+      body{
+          max-width: 700px;
+          margin: 20px auto;
+      }
+      .header{
+          text-align: center;
+          margin: 20px 0;
+      }
+      .header img{
+          max-height: 160px;
+          max-width: 100%;
+      }
+      .main{
+          position: relative;
+          background: #FAFAFA;
+          color: #151515;
+          padding: 10px;
+      }
+      .main .filelink{
+          font-size: 16pt;
+          background: #F0F0F0;
+          padding: 5px;
+          overflow-wrap: break-word;
+          text-decoration: none;
+          display: block;
+      }
+      .footer hr{
+          margin: 0 0 20px 0;
+          border: 1px solid #A0A0A0;
+      }
+      .footer{
+          font-size: 10pt;
+          text-align: center;
+          color: #505050;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <c:using value="project">
+        <img @src="keygen/api/keygen/project/cover?project={0} _id" alt="Cover Image" class="cover" />
+        <h1 lquery="(text title)">PROJECT</h1>
+      </c:using>
+    </div>
+    <div class="main" id="main">
+      <p>Hi,</p>
+      <p>You claimed a key for <span class="project" lquery="(text (clip project :title))">PROJECT</span> <span class="package" lquery="(text (clip package :title))">PACKAGE</span> to this email address. You will now require the following link to access your files:</p>
+      <a class="filelink" lquery="(text url) (attr :href url)">http://example.com/</a>
+      <p>This link will not expire, but your old code will no longer work. Please make sure to keep this link safe.</p>
+    </div>
+    <div class="footer">
+      <hr>
+      <div class="note">
+        You are receiving this email because you opted in via our website.<br>
+      </div>
+      <div class="software">
+        Running on <a href="https://shirakumo.org/projects/keygen" target="_blank">Keygen <c:splice lquery="(text software-version)">0.0.0</c:splice></a>
+      </div>
+    </div>
+  </body>
+</html>

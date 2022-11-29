@@ -23,7 +23,9 @@
                (:file "api"))
   :depends-on ((:interface :relational-database)
                (:interface :auth)
+               (:interface :mail)
                :form-fiddle
+               :i-json
                :r-data-model
                :r-clip
                :ratify

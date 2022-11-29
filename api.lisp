@@ -51,8 +51,14 @@
     (api-output (list-keys package))))
 
 (define-api keygen/key/generate (package count &optional expires) (:access (perm keygen))
-  (let ((package (ensure-package (db:ensure-id package))))
-    (api-output (generate-keys package (parse-integer count) :expires (when expires (parse-integer expires))))))
+  (let ((package (ensure-package (db:ensure-id package)))
+        (codes (generate-keys package (parse-integer count) :expires (when (or* expires) (parse-integer expires)))))
+    (setf (header "Cache-Control") "no-store")
+    (setf (header "Content-Disposition") (format NIL "inline; filename=\"~a-~a.csv\""
+                                                 (dm:field package "title")
+                                                 (format-filesystem-date (local-time:now))))
+    (setf (content-type *response*) "text/csv")
+    (format NIL "~{~a~^~%~}" codes)))
 
 (define-api keygen/key/export (package) (:access (perm keygen))
   #++
@@ -62,18 +68,40 @@
     (setf (content-type *response*) "text/csv;encoding=utf-8")
     (setf (data response) (generate-csv keys))))
 
+(defun claim-email (key email)
+  (let* ((url (uri-to-url "keygen/access"
+                          :representation :external
+                          :query `(("code" . ,(dm:field key "code"))
+                                   ("authcode" . ,(email-auth-code email)))))
+         (package (ensure-package key))
+         (project (ensure-project package))
+         (subject (format NIL "Your code for ~a ~a" (dm:field project "title") (dm:field package "title")))
+         (content (r-clip:process (@template "email.ctml")
+                                  :subject subject
+                                  :package package
+                                  :project project
+                                  :key key
+                                  :url url))
+         (text (with-output-to-string (out)
+                 (lquery:$ content "body" (text) (each (lambda (text) (write-line text out))))))
+         (plump:*tag-dispatchers* plump:*html-tags*))
+    (values subject text (plump:serialize content NIL))))
+
 (define-api keygen/key/claim (code email) ()
   (db:with-transaction ()
-    (let ((key (find-key code)))
+    (let ((key (find-key code))
+          (authcode (email-auth-code email)))
       (unless (key-valid-p key)
         (error 'radiance:request-not-found))
       (setf (dm:field key "owner-email") email)
+      (multiple-value-bind (subject text html) (claim-email key email)
+        (mail:send email subject text :html html))
       (dm:save key)
       (redirect (uri-to-url "keygen/access"
                             :representation :external
                             :query `(("message" . ,(format NIL "Code registered to ~a. Please check your email!" email))
                                      ("code" . ,code)
-                                     ("authcode" . ,(email-auth-code email))))))))
+                                     ("authcode" . ,authcode)))))))
 
 (define-api keygen/key/resolve (code file &optional authcode) ()
   (db:with-transaction ()

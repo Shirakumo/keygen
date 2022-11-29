@@ -35,20 +35,26 @@
   (let ((project (find-project project)))
     (render-page (dm:field project "title") (@template "keys.ctml")
                  :project project
+                 :packages (list-packages project)
                  :keys (list-keys project)
                  :cover (project-cover project)
                  :up (uri-to-url (format NIL "keygen/~a" (dm:field project "title")) :representation :external))))
 
 (define-page public "keygen/access" ()
-  (let ((key (find-key (get-var "code"))))
-    (unless (key-valid-p key (get-var "authcode"))
+  (let* ((code (get-var "code"))
+         (key (find-key code))
+         (authcode (get-var "authcode")))
+    (unless (key-valid-p key authcode)
       (error 'radiance:request-not-found))
     ;; FIXME: update accesses
-    (let ((project (ensure-project key))
-          (package (ensure-package key)))
-      (render-page (dm:field project "title") (@template "access.ctml")
+    (let* ((package (ensure-package key))
+           (project (ensure-project package)))
+      (render-page (format NIL "~a ~a" (dm:field project "title") (dm:field package "title"))
+                   (@template "access.ctml")
                    :project project
                    :package package
                    :files (list-files package)
                    :cover (project-cover project)
+                   :code code
+                   :authcode authcode
                    :key key))))

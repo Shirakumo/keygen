@@ -184,6 +184,7 @@
                                        ("file" . ,(db:ensure-id file))))))
   (:edit (package)
          (when file[]-p
+           (db:remove 'package-files (db:query (:= 'package (dm:id package))))
            (dolist (file file[])
              (db:insert 'package-files `(("package" . ,(dm:id package))
                                          ("file" . ,(db:ensure-id file))))))))
@@ -194,7 +195,7 @@
             :sort '(("title" :asc)))))
 
 (define-object file
-    ((project project) filename types (download-count integer 0) (last-modified time (get-universal-time)))
+    ((project project) filename (types types) (download-count integer 0) (last-modified time (get-universal-time)))
   :subobjects (package-files)
   :url ("keygen/project/~a" "project")
   (:delete (file)
@@ -218,15 +219,16 @@
     (T (list-files (ensure-project thing)))))
 
 (define-object key
-    ((package package) (code T (generate-code)) (owner-email T NIL) (time time (get-universal-time)) (expires time NIL) (first-access time NIL) (last-access time NIL) (access-count integer 0))
+    ((package package) (code T (generate-code)) (owner-email T "") (time time (get-universal-time)) (expires time NIL) (first-access time NIL) (last-access time NIL) (access-count integer 0))
   :url ("keygen/project/~a" "project"))
 
 (defun key-valid-p (key &optional authcode)
   (let* ((key (ensure-key key))
          (owner (dm:field key "owner-email"))
          (expiry (dm:field key "expires")))
-    (cond ((null owner)
+    (cond ((or (null owner) (string= "" owner))
            (or (null expiry)
+               (= 0 expiry)
                (< (get-universal-time) expiry)))
           (authcode
            (string= authcode (email-auth-code owner))))))
@@ -246,7 +248,7 @@
   (typecase thing
     (dm:data-model
      (ecase (dm:collection thing)
-       (project (dm:get 'key (db:query (:= 'project (dm:id thing)))
+       (project (dm:get (rdb:join (key package) (package _id)) (db:query (:= 'project (dm:id thing)))
                         :sort '(("time" :asc))))
        (package (dm:get 'key (db:query (:= 'package (dm:id thing)))
                         :sort '(("time" :asc))))))

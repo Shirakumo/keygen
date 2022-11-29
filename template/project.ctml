@@ -49,19 +49,28 @@
           </div>
           <div class="row dynamic-list">
             <label>Files</label>
-            <ul class="files" iterate="(keygen::list-files *)">
-              <li class="file">
-                <input type="hidden" name="file[]" lquery="(val _id)">
-                <span class="filename" lquery="(text filename)"></span>
-                <span class="types" lquery="(text types)"></span>
-                <button class="delete"><i class="fas fa-trash"></i></button>
-              </li>
-            </ul>
-            <div class="file-add oneline">
-              <select iterate="(** :files)">
-                <option lquery="(val _id) (text filename)">FILE</option>
-              </select>
-              <button class="add">Add</button>
+            <div>
+              <ul class="files" iterate="(keygen::list-files *)">
+                <li class="file">
+                  <input type="hidden" name="file[]" lquery="(val file)"/>
+                  <span class="filename" lquery="(text filename)"></span>
+                  <span class="types" iterate="types">
+                    <i class="fas" lquery="(add-class (keygen::type-icon *)) (attr :title (keygen::type-name *))"></i>
+                  </span>
+                  <a class="button remove-self"><i class="fas fa-trash"></i></a>
+                </li>
+              </ul>
+              <div class="file-add oneline">
+                <li class="file template">
+                  <input type="hidden" data-name="file[]" data-value="this.select.value"/>
+                  <span class="filename" data-text="this.select.options[this.select.selectedIndex].text"></span>
+                  <a class="button remove-self"><i class="fas fa-trash"></i></a>
+                </li>
+                <select data-var="select" iterate="(** :files)">
+                  <option lquery="(val _id) (text filename)">FILE</option>
+                </select>
+                <a class="new button"><i class="fas fa-plus-circle"></i></a>
+              </div>
             </div>
           </div>
           <input type="submit" value="Save"/>
@@ -90,7 +99,7 @@
           <input type="hidden" name="browser" value="true" />
           <input type="hidden" name="file" lquery="(val _id)" />
           <input type="text" name="filename" required maxlength="128" lquery="(val filename)" />
-          <input type="text" name="types" maxlength="16" lquery="(val types)" />
+          <input type="text" name="types" maxlength="16" lquery="(val (keygen::unparse-types types))" />
           <span class="download-count" lquery="(text download-count)">0</span>
           <input type="submit" value="Save" />
         </form>
@@ -101,8 +110,11 @@
           <span class="last-modified" lquery="(time last-modified)">2022.12.1</span>
           <input type="submit" value="Upload" />
         </form>
+        <a class="button" href="#" @href="keygen/api/keygen/file/download?file={0}&browser=true _id">
+          <i class="fas fa-download"></i> Download
+        </a>
         <a class="button confirm" href="#" @href="keygen/api/keygen/file/delete?file={0}&browser=true _id">
-          <i class="fas fa-trash"></i>
+          <i class="fas fa-trash"></i> Delete
         </a>
       </li>
     </ul>

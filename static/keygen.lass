@@ -55,12 +55,11 @@
      :display inline-block
      :margin 0
      :font-size inherit)
-    ((:or (h1 a) h2)
-     :padding 0.3em)
     (h1
      :position absolute
      :left 0 :top 0
      (a
+      :padding 0.2em 0.5em
       :display inline-block
       :color (hex FFFFFF) !important
       :background #(c=0)))
@@ -72,7 +71,8 @@
      :margin-bottom -3px
      :color white
      :text-shadow 0 0 0.2em black
-     :z-index 10))
+     :z-index 10
+     (a :color white !important)))
    (>main
     (.box
      :position fixed
@@ -192,6 +192,17 @@
    (.panel.wide
     :width 100%))
 
+  (.page.list
+   :max-width 1000px)
+
+  (.page.access
+   (ul.files
+    :font-size 1.2em
+    (li
+     :display flex
+     (>* :margin 0 0.2em)
+     (.link :flex-grow 1))))
+
   (form
    ((:or input button select textarea)
     :border 1px solid (hex E0E0E0)
@@ -235,11 +246,17 @@
      (>li
       :margin 0.2em 0
       :display flex
+      :align-items center
+      (>* :flex-grow 1
+          :margin 0 0.2em)
+      (.button :flex-grow 0)
       (textarea
        :box-sizing border-box
        :display block
        :flex-grow 1
-       :height 2em))))
+       :height 2em))
+     (>li.file
+      (>.types :flex-grow 0))))
    (.template :display none !important)
    (input
     :position relative)
@@ -276,10 +293,23 @@
     :flex-grow 0
     :min-width 5em
     :width auto))
-  
-  (.page
-   :max-width 800px
-   :margin 1em auto))
+
+  (.page.list
+   (ul.keys
+    :list-style none
+    :border none
+    :padding 0
+    :margin 1em 0
+    (li
+     :display grid
+     :font-size 0.9em
+     :margin-bottom 0.2em
+     :grid-template-columns 10em 1fr 1fr 9em 9em
+     :grid-column-gap 0.2em)
+    (li.key
+     (.code :font-family monospace))
+    (.header
+     :border-bottom 1px solid #(c=0)))))
 
 (:media "(max-width: 800px)"
         (body

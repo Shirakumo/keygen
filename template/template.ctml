@@ -17,10 +17,7 @@
       </c:when>
       <h1><a href="#" @href="keygen/" lquery="(text title)">Keygen Software Distribution</a></h1>
       <h2>
-        <c:when test="up">
-          <a lquery="(attr :href up) (text up-text)"></a>
-        </c:when>
-        <c:splice lquery="(text page)"/>
+        <a lquery="(attr :href up) (text page)"></a>
       </h2>
     </header>
     <main>
