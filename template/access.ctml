@@ -16,6 +16,10 @@
     </form>
   </c:using>
   <div class="panel wide">
+    <p lquery="(text (clip project :description))">
+    </p>
+    <p lquery="(text (clip package :description))">
+    </p>
     <h3>Files</h3>
     <ul class="files" iterate="files">
       <li>

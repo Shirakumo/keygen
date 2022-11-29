@@ -27,7 +27,7 @@
       <script @src="/static/keygen/keygen.js"></script>
     </main>
     <footer>
-      &copy; <time lquery="(time T)">2019</time> <c:splice lquery="(text copyright)">Shirakumo</c:splice><br/>
+      &copy; <time lquery="(time T :year)">2019</time> <c:splice lquery="(text copyright)">Shirakumo</c:splice><br/>
       Running on <a href="https://shirakumo.org/projects/keygen">Keygen <c:splice lquery="(text version)">0.0.0</c:splice></a>
     </footer>
   </body>
