@@ -32,7 +32,7 @@
       </li>
       <c:splice iterate="keys">
         <li class="key">
-          <a class="code" lquery="(text code)" @href="keygen/access?code={0} code">CODE</a>
+          <a class="code" lquery="(text code) (attr :href (keygen::key-url *))">CODE</a>
           <span class="package" lquery="(text title)">PACKAGE</span>
           <span class="owner" lquery="(text owner-email)">OWNER</span>
           <time class="created" lquery="(time time)">2022</time>

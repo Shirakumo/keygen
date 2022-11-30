@@ -46,7 +46,11 @@
          (authcode (get-var "authcode")))
     (unless (key-valid-p key authcode)
       (error 'radiance:request-not-found))
-    ;; FIXME: update accesses
+    (when (or (null (dm:field key "first-access")) (= 0 (dm:field key "first-access")))
+      (setf (dm:field key "first-access") (get-universal-time)))
+    (setf (dm:field key "last-access") (get-universal-time))
+    (incf (dm:field key "access-count"))
+    (dm:save key)
     (let* ((package (ensure-package key))
            (project (ensure-project package)))
       (render-page (format NIL "~a ~a" (dm:field project "title") (dm:field package "title"))

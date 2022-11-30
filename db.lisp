@@ -259,3 +259,10 @@
        (package (dm:get 'key (db:query (:= 'package (dm:id thing)))
                         :sort '(("time" :asc))))))
     (T (list-keys (ensure-project thing)))))
+
+(defun key-url (key)
+  (let ((owner (or* (dm:field key "owner-email"))))
+    (uri-to-url "keygen/access"
+                :representation :external
+                :query `(("code" . ,(dm:field key "code"))
+                         ("authcode" . ,(when owner (email-auth-code owner)))))))
