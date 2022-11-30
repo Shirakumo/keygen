@@ -1,6 +1,6 @@
 <article class="page access">
   <c:using value="key">
-    <form class="panel wide claim oneline" method="post" action="keygen/api/keygen/key/claim">
+    <form class="panel wide claim oneline" method="post" @action="keygen/api/keygen/key/claim">
       <input type="hidden" name="browser" value="true" />
       <input type="hidden" name="code" lquery="(val code)" />
       <c:if test="(or* owner-email)">

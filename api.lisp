@@ -97,11 +97,15 @@
       (multiple-value-bind (subject text html) (claim-email key email)
         (mail:send email subject text :html html))
       (dm:save key)
-      (redirect (uri-to-url "keygen/access"
-                            :representation :external
-                            :query `(("message" . ,(format NIL "Code registered to ~a. Please check your email!" email))
-                                     ("code" . ,code)
-                                     ("authcode" . ,authcode)))))))
+      (let* ((message (format NIL "Code registered to ~a. Please check your email!" email))
+             (target (uri-to-url "keygen/access"
+                                 :representation :external
+                                 :query `(("message" . ,message)
+                                          ("code" . ,code)
+                                          ("authcode" . ,authcode)))))
+        (if (string= "true" (post/get "browser"))
+            (redirect target)
+            (api-output key :message message :target target))))))
 
 (define-api keygen/key/resolve (code file &optional authcode) ()
   (db:with-transaction ()
