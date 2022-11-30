@@ -1,5 +1,6 @@
 <article class="page project keys list">
   <form class="panel wide" method="post" @action="keygen/api/keygen/key/generate">
+    <h3>Generate</h3>
     <div class="row">
       <label>Count</label>
       <input type="number" name="count" min="1" required />
@@ -11,10 +12,36 @@
       </select>
     </div>
     <div class="row">
+      <label>Segment</label>
+      <input type="text" name="segment" maxlength="64" />
+    </div>
+    <div class="row">
       <label>Expires by</label>
       <input type="datetime-local" name="expires" />
     </div>
     <input type="submit" value="Generate" data-nofetch="true" />
+  </form>
+  <form class="panel wide" method="post" @action="keygen/api/keygen/key/export">
+    <h3>Export</h3>
+    <div class="row">
+      <label>Package</label>
+      <select name="package" iterate="packages">
+        <option lquery="(val _id) (text title)">PACKAGE</option>
+      </select>
+    </div>
+    <div class="row">
+      <label>Segment</label>
+      <input type="text" name="segment" maxlength="64" />
+    </div>
+    <div class="row">
+      <label>Format</label>
+      <select name="format">
+        <option value="txt">Keys Only</option>
+        <option value="csv">CSV</option>
+        <option value="json">JSON</option>
+      </select>
+    </div>
+    <input type="submit" value="Export" data-nofetch="true" />
   </form>
   <div class="panel wide">
     <h3>Keys</h3>
@@ -26,6 +53,7 @@
       <li class="header">
         <span class="code">Code</span>
         <span class="package">Package</span>
+        <span class="segment">Segment</span>
         <span class="owner">Owner</span>
         <span class="created">Created</span>
         <span class="created">Expires</span>
@@ -34,6 +62,7 @@
         <li class="key">
           <a class="code" lquery="(text code) (attr :href (keygen::key-url *))">CODE</a>
           <span class="package" lquery="(text title)">PACKAGE</span>
+          <span class="segment" lquery="(text segment)">SEGMENT</span>
           <span class="owner" lquery="(text owner-email)">OWNER</span>
           <time class="created" lquery="(time time)">2022</time>
           <time class="expires" lquery="(time expires)"></time>

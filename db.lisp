@@ -46,7 +46,8 @@
   ;; A key to access the contents of a package. Can be claimed.
   (db:create 'key
              '((package (:id package))
-               (code (:varchar 32))
+               (segment (:varchar 64))
+               (code (:varchar 16))
                (owner-email (:varchar 128))
                (time (:integer 5))
                (expires (:integer 5))
@@ -225,7 +226,7 @@
     (T (list-files (ensure-project thing)))))
 
 (define-object key
-    ((package package) (code T (generate-code)) (owner-email T "") (time time (get-universal-time)) (expires time NIL) (first-access time NIL) (last-access time NIL) (access-count integer 0))
+    ((package package) (code T (generate-code)) (segment T "") (owner-email T "") (time time (get-universal-time)) (expires time NIL) (first-access time NIL) (last-access time NIL) (access-count integer 0))
   :url ("keygen/project/~a" "project"))
 
 (defun key-valid-p (key &optional authcode)
@@ -250,15 +251,21 @@
             for key = (make-key package :expires expires)
             collect (dm:field key "code")))))
 
-(defun list-keys (thing)
+(defun list-keys (thing &key segment)
   (typecase thing
     (dm:data-model
      (ecase (dm:collection thing)
-       (project (dm:get (rdb:join (key package) (package _id)) (db:query (:= 'project (dm:id thing)))
+       (project (dm:get (rdb:join (key package) (package _id))
+                        (if segment
+                            (db:query (:and (:= 'project (dm:id thing)) (:= 'segment segment)))
+                            (db:query (:= 'project (dm:id thing))))
                         :sort '(("time" :asc))))
-       (package (dm:get 'key (db:query (:= 'package (dm:id thing)))
+       (package (dm:get 'key
+                        (if segment
+                            (db:query (:and (:= 'package (dm:id thing)) (:= 'segment segment)))
+                            (db:query (:= 'package (dm:id thing))))
                         :sort '(("time" :asc))))))
-    (T (list-keys (ensure-project thing)))))
+    (T (list-keys (ensure-project thing) :segment segment))))
 
 (defun key-url (key)
   (let ((owner (or* (dm:field key "owner-email"))))
