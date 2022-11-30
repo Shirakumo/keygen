@@ -195,9 +195,15 @@
             :sort '(("title" :asc)))))
 
 (define-object file
-    ((project project) filename (types types) (download-count integer 0) (last-modified time (get-universal-time)))
+    ((project project) filename (types types) (download-count integer 0) (last-modified time (get-universal-time)) (payload NIL NIL))
   :subobjects (package-files)
   :url ("keygen/project/~a" "project")
+  (:make (file)
+         (when payload
+           (uiop:copy-file (first payload) (file-pathname file))))
+  (:edit (file)
+         (when payload
+           (uiop:copy-file (first payload) (file-pathname file))))
   (:delete (file)
            (uiop:delete-file-if-exists (file-pathname file))))
 
