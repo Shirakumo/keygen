@@ -55,9 +55,9 @@
   (let ((package (ensure-package (db:ensure-id package))))
     (api-output (list-keys package))))
 
-(define-api keygen/key/generate (package count &optional expires) (:access (perm keygen))
+(define-api keygen/key/generate (package count &optional segment expires) (:access (perm keygen))
   (let ((package (ensure-package (db:ensure-id package)))
-        (codes (generate-keys package (parse-integer count) :expires (when (or* expires) (parse-integer expires)))))
+        (codes (generate-keys package (parse-integer count) :segment segment :expires (when (or* expires) (parse-integer expires)))))
     (setf (header "Cache-Control") "no-store")
     (setf (header "Content-Disposition") (format NIL "inline; filename=\"~a-~a.csv\""
                                                  (dm:field package "title")

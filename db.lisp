@@ -244,11 +244,11 @@
   (or (dm:get-one 'key (db:query (:= 'code code)))
       (error 'radiance:request-not-found)))
 
-(defun generate-keys (package count &key expires)
+(defun generate-keys (package count &key expires segment)
   (let ((package (ensure-package package)))
     (db:with-transaction ()
       (loop repeat count
-            for key = (make-key package :expires expires)
+            for key = (make-key package :expires expires :segment segment)
             collect (dm:field key "code")))))
 
 (defun list-keys (thing &key segment)
