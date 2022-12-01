@@ -196,7 +196,7 @@
             :sort '(("title" :asc)))))
 
 (define-object file
-    ((project project) filename (types types) (download-count integer 0) (last-modified time (get-universal-time)) (payload NIL NIL))
+    ((project project) filename (types types "") (download-count integer 0) (last-modified time (get-universal-time)) (payload NIL NIL))
   :subobjects (package-files)
   :url ("keygen/project/~a" "project")
   (:make (file)

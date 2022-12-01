@@ -46,14 +46,13 @@ class Keygen{
             if(!self.loading[target]){
                 if(element.checkValidity()){
                     self.showSpinner();
-                    var uploader = save.dataset.chunked? self.chunkUpload : self.apiCall;
                     self.loading[target] =
-                        uploader(target, element, {progress: (loaded,total)=>
+                        self.chunkUpload(target, element, {progress: (loaded,total)=>
                             self.showSpinner({progress: Math.round(loaded*100/total)})
                         })
                         .then((r)=>{window.location.replace(r.target);},
-                              (r)=>{self.showError(r.message ||
-                                                   new DOMParser().parseFromString(r, "text/html").querySelector("title").innerText);})
+                              (r)=>{self.log(r);
+                                    self.showError(r.message || new DOMParser().parseFromString(r, "text/html").querySelector("title").innerText);})
                         .finally(()=>{delete self.loading[target];
                                       self.showSpinner();});
                 }else{
@@ -62,34 +61,6 @@ class Keygen{
             }
             return false;
         });
-    }
-
-    chunkUpload(endpoint, args, options){
-        options = options || {};
-        var chunkSize = options.chunkSize || 8192;
-        var file = args.querySelector("input[type=file]").files[0];
-        var filePart = args.querySelector("input[type=file]").getAttribute("name");
-        var chunk = 0;
-        var promise = Promise.resolve();
-        if(options.progress){
-            var origProgress = options.progress;
-            options.progress = (loaded,total)=>{
-                origProgress(chunk*chunkSize+loaded, file.size);
-            };
-        }
-
-        while(true){
-            var start = chunk*chunkSize;
-            var end = Math.min(start+chunkSize, file.size);
-            var formData = new FormData(args);
-            formData.delete("browser");
-            formData.set(filePart, file.slice(start, end));
-            formData.set("chunk", chunk+"");
-            promise = promise.then(()=>this.apiCall(endpoint, formData, options));
-            chunk++;
-            if(file.size <= end) break;
-        };
-        return promise;
     }
 
     registerCode(element){
@@ -232,7 +203,36 @@ class Keygen{
         return el;
     }
 
+    chunkUpload(endpoint, args, options){
+        options = options || {};
+        var chunkSize = options.chunkSize || (1024*1024)*5;
+        var input = args.querySelector("input[type=file]");
+        if(!input || input.files.length <= 0) return this.apiCall(endpoint, args, options);
+        var file = input.files[0];
+        var filePart = input.getAttribute("name");
+        var promise = Promise.resolve();
+        var progress = options.progress;
+        console.log("Will chunk the file into",Math.ceil(file.size/chunkSize),"chunks of",chunkSize,"bytes");
+        for(let i=0,c=0; i<file.size; i+=chunkSize, c++){
+            let start = i;
+            let chunk = c;
+            promise = promise.then(()=>{
+                if(progress){
+                    var end = Math.min(start+chunkSize, file.size);
+                    var formData = new FormData(args);
+                    formData.delete("browser");
+                    formData.set(filePart, file.slice(start, end));
+                    formData.set("chunk", chunk+"");
+                    options.progress = (loaded,total)=>progress(start+loaded, file.size);
+                }
+                return this.apiCall(endpoint, formData, options);
+            });
+        };
+        return promise;
+    }
+
     apiCall(endpoint, args, methodArgs){
+        var self = this;
         methodArgs = methodArgs || {};
         methodArgs.format = methodArgs.format || "json";
         return new Promise((ok, fail)=>{
@@ -259,7 +259,7 @@ class Keygen{
                 formData.append("data-format", "json");
 
             if(methodArgs.progress)
-                request.addEventListener("progress", (ev)=>
+                request.upload.addEventListener("progress", (ev)=>
                     methodArgs.progress(ev.loaded, ev.total));
             
             request.addEventListener("load", ()=>{
@@ -270,14 +270,14 @@ class Keygen{
                     status = data.status || status;
                 }
                 if(status === 200){
-                    this.log("Request succeeded", data);
+                    self.log("Request succeeded", data);
                     ok(data);
                 }else{
-                    this.log("Request failed", data);
+                    self.log("Request failed", data);
                     fail(data);
                 }
             });
-            this.log("Sending request to",endpoint);
+            self.log("Sending request to", endpoint);
             request.open("POST", endpoint);
             request.send(formData);
         });
