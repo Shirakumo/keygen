@@ -234,7 +234,7 @@ class Keygen{
                 request.addEventListener("progress", (ev)=>
                     methodArgs.progress(ev.loaded, ev.total));
             
-            request.addEventLisnener("load", ()=>{
+            request.addEventListener("load", ()=>{
                 var data = request.responseText;
                 var status = request.status;
                 if(request.getResponseHeader("Content-Type").includes("application/json")){
