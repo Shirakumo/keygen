@@ -209,6 +209,16 @@
      :flex-grow 0
      :width 3em)))
 
+  (.page.front
+   (.code
+    (.row :align-items center)
+    (input[type=text]
+     :width 100%
+     :background (hex DDD)
+     :text-align center
+     :font-family monospace
+     :font-size 2em)))
+
   (.page.access
    (ul.files
     :font-size 1.2em

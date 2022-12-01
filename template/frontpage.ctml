@@ -1,0 +1,7 @@
+<article class="page front">
+  <form class="panel wide code" method="get" @action="keygen/access">
+    <h3>Access Your Download Code</h3>
+    <input type="text" maxlength="16" id="code" name="code" placeholder="ABCD1234ABCD1234" required autofocus />
+    <input type="submit" value="Go" data-nofetch="true" />
+  </form>
+</article>

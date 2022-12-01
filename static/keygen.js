@@ -25,7 +25,7 @@ class Keygen{
         this.registerAll(element, ".button.confirm", this.registerConfirm);
         this.registerAll(element, "form", this.registerForm);
         this.registerAll(element, ".dynamic-list", this.registerDynamicList);
-        this.registerAll(element, ".code", this.registerCode);
+        this.registerAll(element, "a.code", this.registerCode);
     }
 
     registerAll(element, query, regger){
@@ -50,9 +50,8 @@ class Keygen{
                         self.chunkUpload(target, element, {progress: (loaded,total)=>
                             self.showSpinner({progress: Math.round(loaded*100/total)})
                         })
-                        .then((r)=>{window.location.replace(r.target);},
-                              (r)=>{self.log(r);
-                                    self.showError(r.message || new DOMParser().parseFromString(r, "text/html").querySelector("title").innerText);})
+                        .then((r)=>{if(r.target)window.location.replace(r.target);},
+                              (r)=>{self.showError(r.message || new DOMParser().parseFromString(r, "text/html").querySelector("title").innerText);})
                         .finally(()=>{delete self.loading[target];
                                       self.showSpinner();});
                 }else{

@@ -20,7 +20,7 @@
   (if (user:check (auth:current "anonymous") (perm keygen))
       (render-page "Dashboard" (@template "dashboard.ctml")
                    :projects (list-projects))
-      (render-page "Frontpage" (@template "frontpage.ctml"))))
+      (render-page (config :title) (@template "frontpage.ctml"))))
 
 (define-page project "keygen/project/([^/]+)" (:uri-groups (project) :access (perm keygen))
   (let ((project (find-project project)))
@@ -38,27 +38,30 @@
                  :packages (list-packages project)
                  :keys (list-keys project)
                  :cover (project-cover project)
-                 :up (uri-to-url (format NIL "keygen/~a" (dm:field project "title")) :representation :external))))
+                 :up (uri-to-url (format NIL "keygen/project/~a" (dm:field project "title")) :representation :external))))
 
 (define-page public "keygen/access" ()
-  (let* ((code (get-var "code"))
-         (key (find-key code))
-         (authcode (get-var "authcode")))
-    (unless (key-valid-p key authcode)
-      (error 'radiance:request-not-found))
-    (when (or (null (dm:field key "first-access")) (= 0 (dm:field key "first-access")))
-      (setf (dm:field key "first-access") (get-universal-time)))
-    (setf (dm:field key "last-access") (get-universal-time))
-    (incf (dm:field key "access-count"))
-    (dm:save key)
-    (let* ((package (ensure-package key))
-           (project (ensure-project package)))
-      (render-page (format NIL "~a ~a" (dm:field project "title") (dm:field package "title"))
-                   (@template "access.ctml")
-                   :project project
-                   :package package
-                   :files (list-files package)
-                   :cover (project-cover project)
-                   :code code
-                   :authcode authcode
-                   :key key))))
+  (let ((code (post/get "code")))
+    (cond (code
+           (let ((key (find-key code))
+                 (authcode (get-var "authcode")))
+             (unless (key-valid-p key authcode)
+               (error 'radiance:request-not-found))
+             (when (or (null (dm:field key "first-access")) (= 0 (dm:field key "first-access")))
+               (setf (dm:field key "first-access") (get-universal-time)))
+             (setf (dm:field key "last-access") (get-universal-time))
+             (incf (dm:field key "access-count"))
+             (dm:save key)
+             (let* ((package (ensure-package key))
+                    (project (ensure-project package)))
+               (render-page (format NIL "~a ~a" (dm:field project "title") (dm:field package "title"))
+                            (@template "access.ctml")
+                            :project project
+                            :package package
+                            :files (list-files package)
+                            :cover (project-cover project)
+                            :code code
+                            :authcode authcode
+                            :key key))))
+          (T
+           (render-page (config :title) (@template "frontpage.ctml"))))))
