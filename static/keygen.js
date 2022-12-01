@@ -68,6 +68,7 @@ class Keygen{
         options = options || {};
         var chunkSize = options.chunkSize || 8192;
         var file = args.querySelector("input[type=file]").files[0];
+        var filePart = args.querySelector("input[type=file]").getAttribute("name");
         var chunk = 0;
         var promise = Promise.resolve();
         if(options.progress){
@@ -80,7 +81,7 @@ class Keygen{
         while(true){
             var start = chunk*chunkSize;
             var end = Math.min(start+chunkSize, file.size);
-            formData = new FormData(args);
+            var formData = new FormData(args);
             formData.delete("browser");
             formData.set(filePart, file.slice(start, end));
             formData.set("chunk", chunk+"");
@@ -185,7 +186,6 @@ class Keygen{
     showSpinner(options){
         var spinner = document.querySelector(".spinner");
         options = options || {activate: (spinner)? false : true};
-        console.log(options.activate);
         if(options.activate === undefined) options.activate = true;
         if(options.activate){
             if(!spinner)
