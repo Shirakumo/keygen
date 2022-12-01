@@ -206,7 +206,7 @@ class Keygen{
                     ]
                 });
             if(options.message) spinner.querySelector(".container").innerText = options.message;
-            if(options.progress) spinner.querySelector(".progress div").style.width = options.progress+"%";
+            if(options.progress !== undefined) spinner.querySelector(".progress div").style.width = options.progress+"%";
             document.querySelector("body").appendChild(spinner);
         }else if(spinner){
             spinner.parentElement.removeChild(spinner);
