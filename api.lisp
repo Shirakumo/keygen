@@ -33,9 +33,14 @@
   (let ((project (ensure-project (db:ensure-id project))))
     (api-output (list-files project))))
 
-(define-api keygen/file/upload (file payload) (:access (perm keygen))
-  (let ((file (ensure-file (db:ensure-id file))))
-    (uiop:copy-file (first payload) (file-pathname file))
+(define-api keygen/file/upload (file payload &optional chunk) (:access (perm keygen))
+  (let ((file (ensure-file (db:ensure-id file)))
+        (chunk (parse-integer (or* chunk "0"))))
+    (if (< 0 chunk)
+        (with-open-file (in (first payload) :element-type '(unsigned-byte 8))
+          (with-open-file (out (file-pathname file) :element-type '(unsigned-byte 8) :if-exists :append)
+            (uiop:copy-stream-to-stream in out :element-type '(unsigned-byte 8))))
+        (uiop:copy-file (first payload) (file-pathname file)))
     (edit-file file :last-modified (get-universal-time))
     (output file "File uploaded" "keygen/project/~a" (dm:field file "project"))))
 

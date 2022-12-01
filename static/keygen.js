@@ -46,8 +46,9 @@ class Keygen{
             if(!self.loading[target]){
                 if(element.checkValidity()){
                     self.showSpinner();
+                    var uploader = save.dataset.chunked? self.chunkUpload : self.apiCall;
                     self.loading[target] =
-                        self.apiCall(target, element, {progress: (loaded,total)=>
+                        uploader(target, element, {progress: (loaded,total)=>
                             self.showSpinner({progress: Math.round(loaded*100/total)})
                         })
                         .then((r)=>{window.location.replace(r.target);},
@@ -61,6 +62,33 @@ class Keygen{
             }
             return false;
         });
+    }
+
+    chunkUpload(endpoint, args, options){
+        options = options || {};
+        var chunkSize = options.chunkSize || 8192;
+        var file = args.querySelector("input[type=file]").files[0];
+        var chunk = 0;
+        var promise = Promise.resolve();
+        if(options.progress){
+            var origProgress = options.progress;
+            options.progress = (loaded,total)=>{
+                origProgress(chunk*chunkSize+loaded, file.size);
+            };
+        }
+
+        while(true){
+            var start = chunk*chunkSize;
+            var end = Math.min(start+chunkSize, file.size);
+            formData = new FormData(args);
+            formData.delete("browser");
+            formData.set(filePart, file.slice(start, end));
+            formData.set("chunk", chunk+"");
+            promise = promise.then(()=>this.apiCall(endpoint, formData, options));
+            chunk++;
+            if(file.size <= end) break;
+        };
+        return promise;
     }
 
     registerCode(element){
