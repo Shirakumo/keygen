@@ -71,17 +71,17 @@
 
 
 (defparameter *file-types*
-  '((#\a "fa-android" "android")
-    (#\c "fa-file-code" "source-code" "source" "code")
-    (#\i "fa-file-image" "image" "picture" "drawing")
-    (#\l "fa-linux" "linux" "unix" "ubuntu")
-    (#\m "fa-apple" "apple" "macos" "mac os" "osx" "os x")
-    (#\o "fa-file-audio" "soundtrack" "audio" "music" "ost")
-    (#\p "fa-file-pdf" "pdf" "document")
-    (#\t "fa-file-lines" "text" "text file")
-    (#\v "fa-file-video" "video" "movie" "making-of")
-    (#\w "fa-windows" "windows" "microsoft windows" "ms windows" "ms-dos")
-    (#\z "fa-file-zipper" "zip" "archive" "zip file")))
+  '((#\a "fab fa-android" "android")
+    (#\c "fas fa-file-code" "source-code" "source" "code")
+    (#\i "fas fa-file-image" "image" "picture" "drawing")
+    (#\l "fab fa-linux" "linux" "unix" "ubuntu")
+    (#\m "fab fa-apple" "apple" "macos" "mac os" "osx" "os x")
+    (#\o "fas fa-file-audio" "soundtrack" "audio" "music" "ost")
+    (#\p "fas fa-file-pdf" "pdf" "document")
+    (#\t "fas fa-file-lines" "text" "text file")
+    (#\v "fas fa-file-video" "video" "movie" "making-of")
+    (#\w "fab fa-windows" "windows" "microsoft windows" "ms windows" "ms-dos")
+    (#\z "fas fa-file-zipper" "zip" "archive" "zip file")))
 
 (defun type-icon (type)
   (or (second (assoc type *file-types*))

@@ -26,7 +26,7 @@
         <a class="link" href="#" @href="keygen/api/keygen/key/resolve?file={0}&code={1}&authcode={2}&browser=true file (** :code) (** :authcode)"
            lquery="(text filename)"></a>
         <span class="types" iterate="types">
-          <i class="fas" lquery="(add-class (keygen::type-icon *)) (attr :title (keygen::type-name *))"></i>
+          <i lquery="(add-class (keygen::type-icon *)) (attr :title (keygen::type-name *))"></i>
         </span>
         <time class="time" lquery="(time last-modified)" />
       </li>

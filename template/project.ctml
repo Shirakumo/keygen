@@ -55,7 +55,7 @@
                   <input type="hidden" name="file[]" lquery="(val file)"/>
                   <span class="filename" lquery="(text filename)"></span>
                   <span class="types" iterate="types">
-                    <i class="fas" lquery="(add-class (keygen::type-icon *)) (attr :title (keygen::type-name *))"></i>
+                    <i lquery="(add-class (keygen::type-icon *)) (attr :title (keygen::type-name *))"></i>
                   </span>
                   <a class="button remove-self"><i class="fas fa-trash"></i></a>
                 </li>
