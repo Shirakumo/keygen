@@ -216,18 +216,24 @@ class Keygen{
             let start = i;
             let chunk = c;
             promise = promise.then(()=>{
+                var end = Math.min(start+chunkSize, file.size);
+                var formData = new FormData(args);
+                formData.delete("browser");
+                formData.set(filePart, file.slice(start, end));
+                formData.set("chunk", chunk+"");
                 if(progress){
-                    var end = Math.min(start+chunkSize, file.size);
-                    var formData = new FormData(args);
-                    formData.delete("browser");
-                    formData.set(filePart, file.slice(start, end));
-                    formData.set("chunk", chunk+"");
                     options.progress = (loaded,total)=>progress(start+loaded, file.size);
                 }
                 return this.apiCall(endpoint, formData, options);
             });
         };
-        return promise;
+        return promise.then(()=>{
+            var formData = new FormData(args);
+            formData.delete("browser");
+            formData.set(filePart, "end");
+            formData.set("chunk", "end");
+            return this.apiCall(endpoint, formData, options);
+        });
     }
 
     apiCall(endpoint, args, methodArgs){
