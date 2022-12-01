@@ -47,7 +47,9 @@ class Keygen{
                 if(element.checkValidity()){
                     self.showSpinner();
                     self.loading[target] =
-                        self.apiCall(target, element)
+                        self.apiCall(target, element, {progress: (loaded,total)=>
+                            self.showSpinner({progress: Math.round(loaded*100/total)})
+                        })
                         .then((r)=>{window.location.replace(r.target);},
                               (r)=>{self.showError(r.message ||
                                                    new DOMParser().parseFromString(r, "text/html").querySelector("title").innerText);})
@@ -153,23 +155,30 @@ class Keygen{
     }
 
     showSpinner(options){
-        options = options || {};
         var spinner = document.querySelector(".spinner");
-        if(options.activate === undefined){
-            options.activate = (spinner)? false : true;
-        }
-        if(options.activate && !spinner){
-            spinner = this.constructElement("div", {
-                classes: ["popup", "spinner", options.classes],
-                elements: [
-                    {
-                        tag: "div",
-                        text: options.message || "Please Wait",
-                        classes: ["container"],
-                        elements: [{tag:"div"}, {tag:"div"}]
-                    }
-                ]
-            });
+        options = options || {activate: (spinner)? false : true};
+        console.log(options.activate);
+        if(options.activate === undefined) options.activate = true;
+        if(options.activate){
+            if(!spinner)
+                spinner = this.constructElement("div", {
+                    classes: ["popup", "spinner", options.classes],
+                    elements: [
+                        {
+                            tag: "div",
+                            text: options.message || "Please Wait",
+                            classes: ["container"],
+                            elements: [{tag:"div", classes: ["anim"]},
+                                       {tag:"div", classes: ["anim"]}, {
+                                           tag: "div",
+                                           classes: ["progress"],
+                                           elements: [{tag:"div"}]
+                                       }]
+                        }
+                    ]
+                });
+            if(options.message) spinner.querySelector(".container").innerText = options.message;
+            if(options.progress) spinner.querySelector(".progress div").style.width = options.progress+"%";
             document.querySelector("body").appendChild(spinner);
         }else if(spinner){
             spinner.parentElement.removeChild(spinner);
@@ -220,8 +229,12 @@ class Keygen{
 
             if(methodArgs.format == "json")
                 formData.append("data-format", "json");
+
+            if(methodArgs.progress)
+                request.addEventListener("progress", (ev)=>
+                    methodArgs.progress(ev.loaded, ev.total));
             
-            request.onload = ()=>{
+            request.addEventLisnener("load", ()=>{
                 var data = request.responseText;
                 var status = request.status;
                 if(request.getResponseHeader("Content-Type").includes("application/json")){
@@ -235,7 +248,7 @@ class Keygen{
                     this.log("Request failed", data);
                     fail(data);
                 }
-            };
+            });
             this.log("Sending request to",endpoint);
             request.open("POST", endpoint);
             request.send(formData);
