@@ -97,19 +97,19 @@
       <li class="file">
         <form method="post" @action="keygen/api/keygen/file/edit" class="oneline">
           <input type="hidden" name="browser" value="true" />
-          <input type="hidden" name="file" lquery="(val _id)" />
+          <input type="text" name="file" lquery="(val _id)" readonly />
           <input type="text" name="filename" required maxlength="128" lquery="(val filename)" />
           <input type="text" name="types" maxlength="16" lquery="(val (keygen::unparse-types types))" />
-          <span class="download-count" lquery="(text download-count)">0</span>
           <input type="submit" value="Save" />
         </form>
         <form method="post" enctype="multipart/form-data" @action="keygen/api/keygen/file/upload" class="oneline">
           <input type="hidden" name="browser" value="true" />
           <input type="hidden" name="file" lquery="(val _id)" />
           <input type="file" name="payload" required />
-          <span class="last-modified" lquery="(time last-modified)">2022.12.1</span>
           <input type="submit" value="Upload" data-chunked="true" />
         </form>
+        Downloads: <span class="download-count" lquery="(text download-count)">0</span>
+        Last Modified: <time class="last-modified" lquery="(time last-modified)">2022.12.1</time>
         <a class="button" href="#" @href="keygen/api/keygen/file/download?file={0}&browser=true _id">
           <i class="fas fa-download"></i> Download
         </a>
