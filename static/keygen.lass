@@ -203,6 +203,12 @@
   (.page.list
    :max-width 1000px)
 
+  (.page.project
+   (li.file
+    (input[name=file]
+     :flex-grow 0
+     :width 3em)))
+
   (.page.access
    (ul.files
     :font-size 1.2em
