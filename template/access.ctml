@@ -1,19 +1,21 @@
 <article class="page access">
   <c:using value="key">
-    <form class="panel wide claim oneline" method="post" @action="keygen/api/keygen/key/claim">
-      <input type="hidden" name="browser" value="true" />
-      <input type="hidden" name="code" lquery="(val code)" />
-      <c:if test="(or* owner-email)">
-        <c:then>
-          The key is claimed by <c:splice lquery="(text owner-email)"/>
-        </c:then>
-        <c:else>
-          Claim the key to your email address:
-          <input type="email" name="email" placeholder="john@example.com" required maxlength="128" />
-          <input type="submit" value="Claim" />
-        </c:else>
-      </c:if>
-    </form>
+    <c:unless test='(equal owner-email "-")'>
+      <form class="panel wide claim oneline" method="post" @action="keygen/api/keygen/key/claim">
+        <input type="hidden" name="browser" value="true" />
+        <input type="hidden" name="code" lquery="(val code)" />
+        <c:if test="(or* owner-email)">
+          <c:then>
+            The key is claimed by <c:splice lquery="(text owner-email)"/>
+          </c:then>
+          <c:else>
+            Claim the key to your email address:
+            <input type="email" name="email" placeholder="john@example.com" required maxlength="128" />
+            <input type="submit" value="Claim" />
+          </c:else>
+        </c:if>
+      </form>
+    </c:unless>
   </c:using>
   <div class="panel wide">
     <p lquery="(text (clip project :description))">

@@ -233,7 +233,7 @@
   (let* ((key (ensure-key key))
          (owner (dm:field key "owner-email"))
          (expiry (dm:field key "expires")))
-    (cond ((or (null owner) (string= "" owner))
+    (cond ((or (null owner) (string= "" owner) (string= "-" owner))
            (or (null expiry)
                (= 0 expiry)
                (< (get-universal-time) expiry)))
@@ -244,11 +244,12 @@
   (or (dm:get-one 'key (db:query (:= 'code code)))
       (error 'radiance:request-not-found)))
 
-(defun generate-keys (package count &key expires segment)
-  (let ((package (ensure-package package)))
+(defun generate-keys (package count &key expires segment unclaimable)
+  (let ((package (ensure-package package))
+        (owner (if unclaimable "-")))
     (db:with-transaction ()
       (loop repeat count
-            for key = (make-key package :expires expires :segment segment)
+            for key = (make-key package :expires expires :segment segment :owner-email owner)
             collect (dm:field key "code")))))
 
 (defun list-keys (thing &key segment)
@@ -269,6 +270,7 @@
 
 (defun key-url (key)
   (let ((owner (or* (dm:field key "owner-email"))))
+    (when (string= owner "-") (setf owner NIL))
     (uri-to-url "keygen/access"
                 :representation :external
                 :query (if owner

@@ -62,10 +62,13 @@
   (let ((package (ensure-package (db:ensure-id package))))
     (api-output (list-keys package))))
 
-(define-api keygen/key/generate (package count &optional segment expires) (:access (perm keygen))
+(define-api keygen/key/generate (package count &optional segment expires unclaimable) (:access (perm keygen))
   (let ((package (ensure-package (db:ensure-id package)))
         (project (ensure-project package))
-        (codes (generate-keys package (parse-integer count) :segment segment :expires (when (or* expires) (parse-integer expires)))))
+        (codes (generate-keys package (parse-integer count)
+                              :segment segment
+                              :expires (when (or* expires) (parse-integer expires))
+                              :unclaimable (string= "true" unclaimable))))
     (setf (header "Cache-Control") "no-store")
     (setf (header "Content-Disposition") (format NIL "inline; filename=\"~a-~a-~a.csv\""
                                                  (dm:field project "title")
@@ -129,6 +132,8 @@
           (authcode (email-auth-code email)))
       (unless (key-valid-p key)
         (error 'radiance:request-not-found))
+      (when (string= "-" (dm:field key "owner-email"))
+        (error 'radiance:request-denied))
       (setf (dm:field key "owner-email") email)
       (multiple-value-bind (subject text html) (claim-email key)
         (mail:send email subject text :html html))
