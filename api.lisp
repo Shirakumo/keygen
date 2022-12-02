@@ -64,20 +64,24 @@
 
 (define-api keygen/key/generate (package count &optional segment expires) (:access (perm keygen))
   (let ((package (ensure-package (db:ensure-id package)))
+        (project (ensure-project package))
         (codes (generate-keys package (parse-integer count) :segment segment :expires (when (or* expires) (parse-integer expires)))))
     (setf (header "Cache-Control") "no-store")
-    (setf (header "Content-Disposition") (format NIL "inline; filename=\"~a-~a.csv\""
-                                                 (dm:field package "title")
+    (setf (header "Content-Disposition") (format NIL "inline; filename=\"~a-~a-~a.csv\""
+                                                 (dm:field project "title")
+                                                 (or segment (dm:field package "title"))
                                                  (format-filesystem-date (local-time:now))))
     (setf (content-type *response*) "text/csv;encoding=utf-8")
     (format NIL "~{~a~^~%~}" codes)))
 
 (define-api keygen/key/export (package &optional segment format) (:access (perm keygen))
   (let* ((package (ensure-package (db:ensure-id package)))
+         (project (ensure-project package))
          (keys (list-keys package :segment (or* segment))))
     (setf (header "Cache-Control") "no-store")
-    (setf (header "Content-Disposition") (format NIL "inline; filename=\"~a-~a.~a\""
-                                                 (dm:field package "title")
+    (setf (header "Content-Disposition") (format NIL "inline; filename=\"~a-~a-~a.~a\""
+                                                 (dm:field project "title")
+                                                 (or segment (dm:field package "title"))
                                                  (format-filesystem-date (local-time:now))
                                                  format))
     (cond ((string-equal "txt" format)
