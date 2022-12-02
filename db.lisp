@@ -271,5 +271,7 @@
   (let ((owner (or* (dm:field key "owner-email"))))
     (uri-to-url "keygen/access"
                 :representation :external
-                :query `(("code" . ,(dm:field key "code"))
-                         ("authcode" . ,(when owner (email-auth-code owner)))))))
+                :query (if owner
+                           `(("code" . ,(dm:field key "code"))
+                             ("authcode" . ,(email-auth-code owner)))
+                           `(("code" . ,(dm:field key "code")))))))
