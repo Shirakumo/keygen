@@ -271,9 +271,7 @@
 (defun key-url (key)
   (let ((owner (or* (dm:field key "owner-email"))))
     (when (string= owner "-") (setf owner NIL))
-    (uri-to-url "keygen/access"
+    (uri-to-url (format NIL "keygen/access/~a" (dm:field key "code"))
                 :representation :external
-                :query (if owner
-                           `(("code" . ,(dm:field key "code"))
-                             ("authcode" . ,(email-auth-code owner)))
-                           `(("code" . ,(dm:field key "code")))))))
+                :query (when owner
+                         `(("authcode" . ,(email-auth-code owner)))))))
