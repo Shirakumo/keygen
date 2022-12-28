@@ -40,7 +40,7 @@
                  :cover (project-cover project)
                  :up (uri-to-url (format NIL "keygen/project/~a" (dm:field project "title")) :representation :external))))
 
-(define-page public "keygen/access(?:/(.*))" (:uri-groups (code))
+(define-page public "keygen/access(?:/(.*))?" (:uri-groups (code))
   (let ((code (or code (post/get "code"))))
     (cond (code
            (let ((key (find-key code))
