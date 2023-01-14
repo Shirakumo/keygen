@@ -30,6 +30,7 @@
         <span class="types" iterate="types">
           <i lquery="(add-class (keygen::type-icon *)) (attr :title (keygen::type-name *))"></i>
         </span>
+        <span class="version" lquery="(text version)" />
         <time class="time" lquery="(time last-modified)" />
       </li>
     </ul>

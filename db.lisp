@@ -34,6 +34,7 @@
                (filename (:varchar 128))
                (types (:varchar 16))
                (last-modified (:integer 5))
+               (version (:varchar 32))
                (download-count (:integer 4)))
              :indices '(project))
 
@@ -196,7 +197,7 @@
             :sort '(("title" :asc)))))
 
 (define-object file
-    ((project project) filename (types types "") (download-count integer 0) (last-modified time (get-universal-time)) (payload NIL NIL))
+    ((project project) filename (types types "") (download-count integer 0) (last-modified time (get-universal-time)) (payload NIL NIL) (version T ""))
   :subobjects (package-files)
   :url ("keygen/project/~a" "project")
   (:make (file)
