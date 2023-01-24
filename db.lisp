@@ -29,7 +29,7 @@
              :indices '(project))
 
   ;; A file within a project, like: windows, linux, handbook
-  (db:create 'file
+  (db:create 'files
              '((project (:id project))
                (filename (:varchar 128))
                (types (:varchar 16))
@@ -41,7 +41,7 @@
   ;; Which files a package gives access to
   (db:create 'package-files
              '((package (:id package))
-               (file (:id file)))
+               (file (:id files)))
              :indices '(package))
 
   ;; A key to access the contents of a package. Can be claimed.
@@ -57,8 +57,8 @@
                (access-count (:integer 4)))
              :indices '(code package)))
 
-(defmacro define-object (table keys &body body)
-  (form-fiddle:with-body-options (body other-options subobjects url) body
+(defmacro define-object (object keys &body body)
+  (form-fiddle:with-body-options (body other-options subobjects url (collection object)) body
     (declare (ignore other-options))
     (let* ((keys (loop for key in keys collect (if (listp key) key (list key T))))
            (req (loop for key in keys when (< (length key) 3) collect (first key)))
@@ -67,8 +67,8 @@
                           collect `(dm:field object ,field)))
            (url (first url)))
       `(progn
-         (defun ,(name- 'make table) (,@req &key ,@opt)
-           (let ((object (dm:hull ',table)))
+         (defun ,(name- 'make object) (,@req &key ,@opt)
+           (let ((object (dm:hull ',collection)))
              ,@(loop for (key type) in keys
                      when type
                      collect `(setf (dm:field object ,(string-downcase key)) (,(converter type) ,key)))
@@ -77,23 +77,23 @@
                 `((lambda ,@(rest (assoc :make body))) object))
              object))
 
-         (defun ,(name- 'ensure table) (object)
+         (defun ,(name- 'ensure object) (object)
            (etypecase object
              (dm:data-model
               (ecase (dm:collection object)
-                (,table object)
+                (,collection object)
                 ,@(loop for subobject in subobjects
-                        collect `(,subobject (,(name- 'ensure table) (dm:field object ,(string-downcase table)))))))
+                        collect `(,subobject (,(name- 'ensure object) (dm:field object ,(string-downcase object)))))))
              (db:id
-              (or (dm:get-one ',table (db:query (:= '_id object)))
+              (or (dm:get-one ',collection (db:query (:= '_id object)))
                   (error 'radiance:request-not-found)))
              (T
-              (,(name- 'ensure table) (db:ensure-id object)))))
+              (,(name- 'ensure object) (db:ensure-id object)))))
 
-         (defun ,(name- 'edit table) (object &key ,@(loop for (key) in keys
+         (defun ,(name- 'edit object) (object &key ,@(loop for (key) in keys
                                                          collect `(,key NIL ,(name- key 'p))))
            (db:with-transaction ()
-             (let ((object (,(name- 'ensure table) object)))
+             (let ((object (,(name- 'ensure object) object)))
                ,@(loop for (key type) in keys
                        when type
                        collect `(when ,(name- key 'p)
@@ -103,43 +103,43 @@
                   `((lambda ,@(rest (assoc :edit body))) object))
                object)))
 
-         (defun ,(name- 'delete table) (object)
+         (defun ,(name- 'delete object) (object)
            (db:with-transaction ()
-             (let ((object (,(name- 'ensure table) object)))
+             (let ((object (,(name- 'ensure object) object)))
                ,@(loop for subobject in subobjects
-                       collect `(db:remove ',subobject (db:query (:= ',table (dm:id object)))))
+                       collect `(db:remove ',subobject (db:query (:= ',object (dm:id object)))))
                (dm:delete object)
                ,(when (assoc :delete body)
                   `((lambda ,@(rest (assoc :delete body))) object))
                object)))
 
 
-         (define-api ,(name/ 'keygen table) (,table) (:access (perm keygen))
-           (api-output (,(name- 'ensure table) ,table)))
+         (define-api ,(name/ 'keygen object) (,object) (:access (perm keygen))
+           (api-output (,(name- 'ensure object) ,object)))
 
-         (define-api ,(name/ 'keygen table 'new) ,req (:access (perm keygen))
+         (define-api ,(name/ 'keygen object 'new) ,req (:access (perm keygen))
            (let* ((kargs (extract-kargs ',(loop for (key) in opt collect (intern (string key) "KEYWORD"))))
-                  (object (apply #',(name- 'make table) ,@req kargs)))
+                  (object (apply #',(name- 'make object) ,@req kargs)))
              (output object
-                     ,(format NIL "~@(~a~) created" table)
+                     ,(format NIL "~@(~a~) created" object)
                      ,url ,@urlargs)))
 
-         (define-api ,(name/ 'keygen table 'edit) (,table) (:access (perm keygen))
+         (define-api ,(name/ 'keygen object 'edit) (,object) (:access (perm keygen))
            (let* ((kargs (extract-kargs ',(loop for (key) in keys collect (intern (string key) "KEYWORD"))))
-                  (object (apply #',(name- 'edit table) ,table kargs)))
+                  (object (apply #',(name- 'edit object) ,object kargs)))
              (output object
-                     ,(format NIL "~@(~a~) edited" table)
+                     ,(format NIL "~@(~a~) edited" object)
                      ,url ,@urlargs)))
 
-         (define-api ,(name/ 'keygen table 'delete) (,table) (:access (perm keygen))
-           (let ((object (,(name- 'delete table) ,table)))
+         (define-api ,(name/ 'keygen object 'delete) (,object) (:access (perm keygen))
+           (let ((object (,(name- 'delete object) ,object)))
              (output object
-                     ,(format NIL "~@(~a~) deleted" table)
+                     ,(format NIL "~@(~a~) deleted" object)
                      ,url ,@urlargs)))))))
 
 (define-object project
     ((author user (auth:current)) title (description T "") (cover NIL NIL))
-  :subobjects (access package file)
+  :subobjects (access package files)
   :url ("keygen/project/~a" "_id")
   (:make (project)
          (ensure-directories-exist (project-pathname project))
@@ -198,6 +198,7 @@
 
 (define-object file
     ((project project) filename (types types "") (download-count integer 0) (last-modified time (get-universal-time)) (payload NIL NIL) (version T ""))
+  :collection files
   :subobjects (package-files)
   :url ("keygen/project/~a" "project")
   (:make (file)
@@ -220,9 +221,9 @@
   (typecase thing
     (dm:data-model
      (ecase (dm:collection thing)
-       (project (dm:get 'file (db:query (:= 'project (dm:id thing)))
+       (project (dm:get 'files (db:query (:= 'project (dm:id thing)))
                         :sort '(("filename" :asc))))
-       (package (dm:get (rdb:join (file _id) (package-files file)) (db:query (:= 'package (dm:id thing)))
+       (package (dm:get (rdb:join (files _id) (package-files file)) (db:query (:= 'package (dm:id thing)))
                         :sort '(("filename" :asc))))))
     (T (list-files (ensure-project thing)))))
 

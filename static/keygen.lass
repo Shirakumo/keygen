@@ -228,6 +228,7 @@
     (li
      :display flex
      (>* :margin 0 0.2em)
+     (.version :font-style italic)
      (.link :flex-grow 1))))
 
   (form

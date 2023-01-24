@@ -27,10 +27,10 @@
       <li>
         <a class="link" href="#" @href="keygen/api/keygen/key/resolve?file={0}&code={1}&authcode={2}&browser=true file (** :code) (** :authcode)"
            lquery="(text filename)"></a>
+        <span class="version" lquery="(text version)" />
         <span class="types" iterate="types">
           <i lquery="(add-class (keygen::type-icon *)) (attr :title (keygen::type-name *))"></i>
         </span>
-        <span class="version" lquery="(text version)" />
         <time class="time" lquery="(time last-modified)" />
       </li>
     </ul>
