@@ -33,12 +33,14 @@
   (let ((project (ensure-project (db:ensure-id project))))
     (api-output (list-files project))))
 
-(define-api keygen/file/upload (file payload &optional chunk) (:access (perm keygen))
+(define-api keygen/file/upload (file payload &optional version chunk) (:access (perm keygen))
   (let* ((file (ensure-file (db:ensure-id file)))
          (tmp (make-pathname :type "tmp" :defaults (file-pathname file)))
          (chunk (or* chunk)))
     (cond ((null chunk)
            (uiop:copy-file (first payload) (file-pathname file))
+           (when version
+             (edit-file file :version version))
            (edit-file file :last-modified (get-universal-time)))
           ((string= "0" chunk)
            (uiop:copy-file (first payload) tmp))
