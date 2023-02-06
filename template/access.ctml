@@ -12,6 +12,9 @@
             Claim the key to your email address:
             <input type="email" name="email" placeholder="john@example.com" required maxlength="128" />
             <input type="submit" value="Claim" />
+            <p>
+              Claiming the key will prevent others from claiming it for themselves.
+            </p>
           </c:else>
         </c:if>
       </form>
