@@ -1,14 +1,8 @@
-#|
- This file is a part of Keygen
- (c) 2022 Shirakumo http://tymoon.eu (shinmera@tymoon.eu)
- Author: Nicolas Hafner <shinmera@tymoon.eu>
-|#
-
 (asdf:defsystem #:keygen
   :defsystem-depends-on (:radiance)
   :class "radiance:virtual-module"
-  :author "Nicolas Hafner <shinmera@tymoon.eu>"
-  :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
+  :author "Yukari Hafner <shinmera@tymoon.eu>"
+  :maintainer "Yukari Hafner <shinmera@tymoon.eu>"
   :version "0.0.0"
   :license "zlib"
   :description "A software distribution service"
