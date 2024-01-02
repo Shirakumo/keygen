@@ -1,7 +1,7 @@
 (in-package #:modularize-user)
 (define-module #:keygen
   (:use #:cl #:radiance)
-  (:shadow #:make-package #:delete-package #:edit-package #:ensure-package #:delete-file)
+  (:shadow #:make-package #:delete-package #:edit-package #:ensure-package #:delete-file #:file)
   (:export)
   (:local-nicknames))
 (in-package #:keygen)
