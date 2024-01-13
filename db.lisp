@@ -236,6 +236,17 @@
           (authcode
            (string= authcode (email-auth-code owner))))))
 
+(defun key-valid-p* (key)
+  (let* ((key (ensure-key key))
+         (owner (dm:field key "owner-email"))
+         (expiry (dm:field key "expires")))
+    (or (and owner
+             (string/= "" owner) 
+             (string/= "-" owner))
+        (or (null expiry)
+            (= 0 expiry)
+            (< (get-universal-time) expiry)))))
+
 (defun find-key (code)
   (or (dm:get-one 'key (db:query (:= 'code code)))
       (error 'radiance:request-not-found)))
@@ -271,3 +282,10 @@
                 :representation :external
                 :query (when owner
                          `(("authcode" . ,(email-auth-code owner)))))))
+
+(defun invalidate-key (key)
+  (db:with-transaction ()
+    (let ((key (ensure-key key)))
+      (setf (dm:field key "owner-email") "-")
+      (setf (dm:field key "expires") 1)
+      (dm:save key))))

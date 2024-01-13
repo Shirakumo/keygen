@@ -63,7 +63,7 @@
         <span class="created">Expires</span>
       </li>
       <c:splice iterate="keys">
-        <li class="key">
+        <li class="key" lquery="(add-class (if (keygen::key-valid-p* *) :valid :invalid))">
           <a class="code" lquery="(text code) (attr :href (keygen::key-url *))">CODE</a>
           <span class="package" lquery="(text title)">PACKAGE</span>
           <span class="segment" lquery="(text segment)">SEGMENT</span>

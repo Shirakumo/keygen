@@ -336,6 +336,8 @@
      :grid-column-gap 0.2em)
     (li.key
      (.code :font-family monospace))
+    (li.key.invalid
+     :text-decoration line-through)
     (.header
      :border-bottom 1px solid #(c=0)))))
 

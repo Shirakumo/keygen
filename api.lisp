@@ -155,3 +155,8 @@
       (setf (header "Last-Modified") (format-last-modified (dm:field file "last-modified")))
       (setf (header "Content-Disposition") (format NIL "inline; filename=\"~a\"" (dm:field file "filename")))
       (serve-file (file-pathname file) "application/octet-stream"))))
+
+(define-api keygen/key/revoke (code) (:access (perm keygen))
+  (let ((key (find-key code)))
+    (invalidate-key key)
+    (api-output NIL)))
