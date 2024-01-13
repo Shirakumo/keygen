@@ -332,7 +332,7 @@
      :display grid
      :font-size 0.9em
      :margin-bottom 0.2em
-     :grid-template-columns 10em 1fr 1fr 1fr 9em 9em
+     :grid-template-columns 10em 1fr 1fr 1fr 10em 1em
      :grid-column-gap 0.2em)
     (li.key
      (.code :font-family monospace))

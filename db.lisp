@@ -74,10 +74,10 @@
          (defun ,(name- 'ensure object) (object)
            (etypecase object
              (dm:data-model
-              (ecase (dm:collection object)
-                (,collection object)
+              (case (dm:collection object)
                 ,@(loop for subobject in subobjects
-                        collect `(,subobject (,(name- 'ensure object) (dm:field object ,(string-downcase object)))))))
+                        collect `(,subobject (,(name- 'ensure object) (dm:field object ,(string-downcase object)))))
+                (T object)))
              (db:id
               (or (dm:get-one ',collection (db:query (:= '_id object)))
                   (error 'radiance:request-not-found)))

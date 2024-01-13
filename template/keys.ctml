@@ -60,7 +60,7 @@
         <span class="segment">Segment</span>
         <span class="owner">Owner</span>
         <span class="created">Created</span>
-        <span class="created">Expires</span>
+        <span class="actions"></span>
       </li>
       <c:splice iterate="keys">
         <li class="key" lquery="(add-class (if (keygen::key-valid-p* *) :valid :invalid))">
@@ -69,7 +69,9 @@
           <span class="segment" lquery="(text segment)">SEGMENT</span>
           <span class="owner" lquery="(text owner-email)">OWNER</span>
           <time class="created" lquery="(time time)">2022</time>
-          <time class="expires" lquery="(time expires)"></time>
+          <nav class="actions">
+            <a @href="keygen/api/keygen/key/revoke?code={0} code" title="Revoke"><i class="fa-solid fa-delete-left"></i></a>
+          </nav>
         </li>
       </c:splice>
     </ul>
