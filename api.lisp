@@ -156,6 +156,24 @@
       (setf (header "Content-Disposition") (format NIL "inline; filename=\"~a\"" (dm:field file "filename")))
       (serve-file (file-pathname file) "application/octet-stream"))))
 
+(define-api keygen/key/files (code &optional authcode) ()
+  (let ((key (find-key code)))
+    (unless (key-valid-p key authcode)
+      (error 'radiance:request-not-found))
+    (setf (header "Cache-Control") "no-cache, no-transform")
+    (api-output (loop for file in (list-files key)
+                      for tab = (make-hash-table :test 'equal)
+                      do (setf (gethash "filename" tab) (dm:field file "filename"))
+                         (setf (gethash "types" tab) (map 'vector #'type-name (dm:field file "types")))
+                         (setf (gethash "version" tab) (dm:field file "version"))
+                         (setf (gethash "last-modified" tab) (dm:field file "last-modified"))
+                         (setf (gethash "url" tab) (uri-to-url "keygen/api/keygen/key/resolve"
+                                                               :representation :external
+                                                               :query `(("code" . ,code)
+                                                                        ("authcode" . ,authcode)
+                                                                        ("file" . ,(princ-to-string (dm:id file))))))
+                      collect tab))))
+
 (define-api keygen/key/revoke (code) (:access (perm keygen))
   (let ((key (find-key code)))
     (invalidate-key key)

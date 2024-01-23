@@ -218,7 +218,8 @@
        (project (dm:get 'files (db:query (:= 'project (dm:id thing)))
                         :sort '(("filename" :asc))))
        (package (dm:get (rdb:join (files _id) (package-files file)) (db:query (:= 'package (dm:id thing)))
-                        :sort '(("filename" :asc))))))
+                        :sort '(("filename" :asc))))
+       (key (list-files (ensure-package thing)))))
     (T (list-files (ensure-project thing)))))
 
 (define-object key
