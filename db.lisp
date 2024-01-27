@@ -227,26 +227,28 @@
   :url ("keygen/project/~a" "project"))
 
 (defun key-valid-p (key &optional authcode)
-  (let* ((key (ensure-key key))
-         (owner (dm:field key "owner-email"))
-         (expiry (dm:field key "expires")))
-    (cond ((or (null owner) (string= "" owner) (string= "-" owner))
-           (or (null expiry)
-               (= 0 expiry)
-               (< (get-universal-time) expiry)))
-          (authcode
-           (string= authcode (email-auth-code owner))))))
+  (when key
+    (let* ((key (ensure-key key))
+           (owner (dm:field key "owner-email"))
+           (expiry (dm:field key "expires")))
+      (cond ((or (null owner) (string= "" owner) (string= "-" owner))
+             (or (null expiry)
+                 (= 0 expiry)
+                 (< (get-universal-time) expiry)))
+            (authcode
+             (string= authcode (email-auth-code owner)))))))
 
 (defun key-valid-p* (key)
-  (let* ((key (ensure-key key))
-         (owner (dm:field key "owner-email"))
-         (expiry (dm:field key "expires")))
-    (or (and owner
-             (string/= "" owner) 
-             (string/= "-" owner))
-        (or (null expiry)
-            (= 0 expiry)
-            (< (get-universal-time) expiry)))))
+  (when key
+    (let* ((key (ensure-key key))
+           (owner (dm:field key "owner-email"))
+           (expiry (dm:field key "expires")))
+      (or (and owner
+               (string/= "" owner) 
+               (string/= "-" owner))
+          (or (null expiry)
+              (= 0 expiry)
+              (< (get-universal-time) expiry))))))
 
 (defun find-key (code)
   (or (dm:get-one 'key (db:query (:= 'code code)))
