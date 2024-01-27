@@ -9,7 +9,7 @@
 
 (define-api keygen/project/cover (project) ()
   (setf (header "Cache-Control") "public")
-  (serve-file (project-cover project) "image/png"))
+  (serve-file (project-cover project)))
 
 (define-api keygen/package/list (project) (:access (perm keygen))
   (let ((project (ensure-project (db:ensure-id project))))

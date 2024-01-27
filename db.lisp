@@ -131,6 +131,17 @@
                      ,(format NIL "~@(~a~) deleted" object)
                      ,url ,@urlargs)))))))
 
+(defvar *image-mime-types*
+  '("image/png" "image/jpeg" "image/webp"))
+
+(defun check-image-format (upload)
+  (if (find (third upload) *image-mime-types* :test #'string=)
+      (third upload)
+      (let ((type (trivial-mimes:mime-probe (first upload))))
+        (if (find type *image-mime-types* :test #'string=)
+            type
+            (api-error "Bad image format: ~a. Needs to be one of ~{~a~^ ~}" type *image-mime-types*)))))
+
 (define-object project
     ((author user (auth:current)) title (description T "") (cover NIL NIL))
   :subobjects (access package files)
@@ -138,14 +149,10 @@
   (:make (project)
          (ensure-directories-exist (project-pathname project))
          (when cover
-           (if (string= "image/png" (third cover))
-               (uiop:copy-file (first cover) (project-cover project))
-               (error "Bad image format. Requires png."))))
+           (uiop:copy-file (first cover) (project-cover* project (check-image-format cover)))))
   (:edit (project)
          (when cover
-           (if (string= "image/png" (third cover))
-               (uiop:copy-file (first cover) (project-cover project))
-               (error "Bad image format. Requires png."))))
+           (uiop:copy-file (first cover) (project-cover* project (check-image-format cover)))))
   (:delete (project)
            (uiop:delete-directory-tree (project-pathname project) :validate (constantly T) :if-does-not-exist :ignore)))
 
@@ -160,7 +167,12 @@
     (environment-module-pathname #.*package* :data path)))
 
 (defun project-cover (project)
-  (make-pathname :name "cover" :type "png" :defaults (project-pathname project)))
+  (first (directory (make-pathname :name "cover" :type :wild :defaults (project-pathname project)))))
+
+(defun project-cover* (project mime)
+  (make-pathname :name "cover"
+                 :type (trivial-mimes:mime-file-type mime)
+                 :defaults (project-pathname project)))
 
 (defun list-projects ()
   (dm:get 'project (db:query :all)
