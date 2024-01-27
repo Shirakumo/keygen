@@ -171,7 +171,7 @@
                                                                :representation :external
                                                                :query `(("code" . ,code)
                                                                         ("authcode" . ,authcode)
-                                                                        ("file" . ,(princ-to-string (dm:id file))))))
+                                                                        ("file" . ,(princ-to-string (dm:field file "file"))))))
                       collect tab))))
 
 (define-api keygen/key/revoke (code) (:access (perm keygen))
