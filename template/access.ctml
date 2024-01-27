@@ -38,4 +38,28 @@
       </li>
     </ul>
   </div>
+  <div class="panel wide">
+    <h3>Update Manager</h3>
+    <p>To automate the download, installation, and update of your files you can also use the Keygen Updater application:</p>
+    <nav class="updater">
+      <a href="https://github.com/Shirakumo/keygenerator/releases/latest/download/keygenerator.exe">
+        <i class="fa-brands fa-fw fa-windows"></i>
+        <span>Windows</span>
+      </a>
+      <a href="https://github.com/Shirakumo/keygenerator/releases/latest/download/keygenerator.o">
+        <i class="fa-brands fa-fw fa-apple"></i>
+        <span>MacOS</span>
+      </a>
+      <a href="https://github.com/Shirakumo/keygenerator/releases/latest/download/keygenerator.run">
+        <i class="fa-brands fa-fw fa-linux"></i>
+        <span>Linux</span>
+      </a>
+    </nav>
+    <p>
+      Place it in whatever directory you installed your files to, or would like to install your files to with it and run it.
+    </p>
+    <p>
+      <b>NOTE:</b> on Windows virus scanners may detect it as a malicious file. This is a known issue with <a href="https://go.dev/doc/faq#virus">Golang</a>, the language used for the updater. You can safely ignore it. If you would like to verify the updater yourself, it is <a href="https://shirakumo.org/projects/keygenerator">open source</a>.
+    </p>
+  </div>
 </article>

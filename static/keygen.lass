@@ -229,7 +229,17 @@
      :display flex
      (>* :margin 0 0.2em)
      (.version :font-style italic)
-     (.link :flex-grow 1))))
+     (.link :flex-grow 1)))
+   (nav.updater
+    :display flex
+    :justify-content center
+    (a
+     :margin 0.5em
+     :color (hex 000)
+     :text-align center
+     (i :font-size 2em))
+    ((:and a :hover)
+     :color #(c=0))))
 
   (form
    ((:or input button select textarea)
