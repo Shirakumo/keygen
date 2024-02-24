@@ -59,6 +59,7 @@
         <span class="package">Package</span>
         <span class="segment">Segment</span>
         <span class="owner">Owner</span>
+        <span class="downloads">Downloads</span>
         <span class="created">Created</span>
         <span class="actions"></span>
       </li>
@@ -68,6 +69,7 @@
           <span class="package" lquery="(text title)">PACKAGE</span>
           <span class="segment" lquery="(text segment)">SEGMENT</span>
           <span class="owner" lquery="(text owner-email)">OWNER</span>
+          <span class="downloads" lquery="(text access-count)">OWNER</span>
           <time class="created" lquery="(time time)">2022</time>
           <nav class="actions">
             <a @href="keygen/api/keygen/key/revoke?code={0} code" title="Revoke"><i class="fa-solid fa-delete-left"></i></a>
