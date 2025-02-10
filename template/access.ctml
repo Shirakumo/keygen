@@ -21,9 +21,9 @@
     </c:unless>
   </c:using>
   <div class="panel wide">
-    <p lquery="(text (clip project :description))">
+    <p lquery="(html (keygen::format-text (clip project :description)))">
     </p>
-    <p lquery="(text (clip package :description))">
+    <p lquery="(html (keygen::format-text (clip package :description)))">
     </p>
     <h3>Files</h3>
     <ul class="files" iterate="files">

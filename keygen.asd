@@ -26,4 +26,5 @@
                :alexandria
                :crypto-shortcuts
                :local-time
-               :cl-ppcre))
+               :cl-ppcre
+               :cl-markless))

@@ -104,3 +104,9 @@
 
 (defun unparse-types (types)
   (format NIL "~{~a~^, ~}" (map 'list #'type-name types)))
+
+(defun format-text (text)
+  (org.shirakumo.markless:output
+   text
+   :target (plump:make-root)
+   :format 'org.shirakumo.markless.plump:plump))
