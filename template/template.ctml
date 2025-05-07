@@ -4,11 +4,21 @@
     <meta charset="utf-8"/>
     <title><c:splice lquery="(text page)"/> - <c:splice lquery="(text title)"/></title>
     <meta name="viewport" content="width=device-width" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="noindex, nofollow" />
     <link rel="stylesheet" type="text/css" href="../static/keygen.css" @href="/static/keygen/keygen.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="api-root" @href="keygen/api/keygen/"/>
     <meta name="viewport" content="width=device-width"/>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Keygen"/>
+    <meta property="og:title" lquery='(attr :content page)' />
+    <meta property="og:description" lquery='(attr :content description)' />
+    <meta property="og:content" lquery='(attr :content description)' />
+    <c:when test="project">
+      <meta property="og:image" lquery='(attr :content (keygen::cover-url project))' />
+      <meta property="og:image:alt" content="Header" />
+      <meta name="twitter:card" content="summary_large_image">
+    </c:when>
   </head>
   <body>
     <header>

@@ -13,8 +13,12 @@
 (define-page landing "keygen/^$" (:access (perm keygen))
   (if (user:check (auth:current "anonymous") (perm keygen))
       (render-page "Dashboard" (@template "dashboard.ctml")
-                   :projects (list-projects))
-      (render-page (config :title) (@template "frontpage.ctml"))))
+                   :cover NIL
+                   :projects (list-projects)
+                   :description "Keygen project dashboard")
+      (render-page (config :title) (@template "frontpage.ctml")
+                   :cover NIL
+                   :description "Access a software package via your personal download key")))
 
 (define-page project "keygen/project/([^/]+)" (:uri-groups (project) :access (perm keygen))
   (let ((project (find-project project)))
@@ -23,7 +27,8 @@
                  :packages (list-packages project)
                  :files (list-files project)
                  :cover (project-cover project)
-                 :up (uri-to-url "keygen/" :representation :external))))
+                 :up (uri-to-url "keygen/" :representation :external)
+                 :description (dm:field project "description"))))
 
 (define-page keys "keygen/project/([^/]+)/keys" (:uri-groups (project) :access (perm keygen))
   (let ((project (find-project project)))
@@ -32,7 +37,8 @@
                  :packages (list-packages project)
                  :keys (list-keys project)
                  :cover (project-cover project)
-                 :up (uri-to-url (format NIL "keygen/project/~a" (dm:field project "title")) :representation :external))))
+                 :up (uri-to-url (format NIL "keygen/project/~a" (dm:field project "title")) :representation :external)
+                 :description (format NIL "Keys for the ~a project" (dm:field project "title")))))
 
 (define-page public "keygen/access(?:/(.*))?" (:uri-groups (code))
   (let ((code (or code (post/get "code"))))
@@ -56,6 +62,9 @@
                             :cover (project-cover project)
                             :code code
                             :authcode authcode
-                            :key key))))
+                            :key key
+                            :description (format NIL "Access your downloads for ~a ~a" (dm:field project "title") (dm:field package "title"))))))
           (T
-           (render-page (config :title) (@template "frontpage.ctml"))))))
+           (render-page (config :title) (@template "frontpage.ctml")
+                        :cover NIL
+                        :description "Access a software package via your personal download key")))))

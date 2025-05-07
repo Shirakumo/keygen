@@ -174,6 +174,11 @@
                  :type (trivial-mimes:mime-file-type mime)
                  :defaults (project-pathname project)))
 
+(defun cover-url (project)
+  (uri-to-url "keygen/api/keygen/project/cover"
+              :representation :external
+              :query `(("project" . ,(princ-to-string (dm:id (ensure-project project)))))))
+
 (defun list-projects ()
   (dm:get 'project (db:query :all)
           :sort '(("title" :ASC))))
