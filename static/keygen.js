@@ -206,7 +206,8 @@ class Keygen{
         options = options || {};
         var chunkSize = options.chunkSize || (1024*1024)*5;
         var input = args.querySelector("input[type=file]");
-        if(!input || input.files.length <= 0) return this.apiCall(endpoint, args, options);
+        if(!input || input.files.length <= 0 || args.classList.contains("direct"))
+            return this.apiCall(endpoint, args, options);
         var file = input.files[0];
         var filePart = input.getAttribute("name");
         var promise = Promise.resolve();

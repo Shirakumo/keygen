@@ -14,7 +14,7 @@
         Delete
       </a>
     </nav>
-    <form class="panel wide" method="post" enctype="multipart/form-data" @action="keygen/api/keygen/project/edit">
+    <form class="panel wide direct" method="post" enctype="multipart/form-data" @action="keygen/api/keygen/project/edit">
       <input type="hidden" name="browser" value="true" />
       <input type="hidden" name="project" lquery="(val _id)" />
       <div class="row">
