@@ -267,6 +267,11 @@
               (= 0 expiry)
               (< (get-universal-time) expiry))))))
 
+(defun key-authcode (key)
+  (let ((owner (or* (dm:field (ensure-key key) "owner-email"))))
+    (when (and owner (string/= owner "-"))
+      (email-auth-code owner))))
+
 (defun find-key (code)
   (or (dm:get-one 'key (db:query (:= 'code code)))
       (error 'radiance:request-not-found)))
@@ -296,12 +301,22 @@
     (T (list-keys (ensure-project thing) :segment segment))))
 
 (defun key-url (key)
-  (let ((owner (or* (dm:field key "owner-email"))))
-    (when (string= owner "-") (setf owner NIL))
+  (let ((authcode (key-authcode key)))
     (uri-to-url (format NIL "keygen/access/~a" (dm:field key "code"))
                 :representation :external
-                :query (when owner
-                         `(("authcode" . ,(email-auth-code owner)))))))
+                :query (when authcode
+                         `(("authcode" . ,authcode))))))
+
+(defun file-url (file &optional key)
+  (if key
+      (uri-to-url "keygen/api/keygen/key/resolve"
+                  :representation :external
+                  :query `(("file" . ,(princ-to-string (dm:id file)))
+                           ("code" . ,(dm:field key "code"))
+                           ("authcode" . ,(key-authcode key))))
+      (uri-to-url "keygen/api/keygen/file/download"
+                  :representation :external
+                  :query `(("file" . ,(princ-to-string (dm:id file)))))))
 
 (defun invalidate-key (key)
   (db:with-transaction ()
@@ -309,3 +324,13 @@
       (setf (dm:field key "owner-email") "-")
       (setf (dm:field key "expires") 1)
       (dm:save key))))
+
+(defun access-key (code &optional authcode)
+  (let ((key (find-key code)))
+    (unless (key-valid-p key authcode)
+      (error 'radiance:request-not-found))
+    (when (or (null (dm:field key "first-access")) (= 0 (dm:field key "first-access")))
+      (setf (dm:field key "first-access") (get-universal-time)))
+    (setf (dm:field key "last-access") (get-universal-time))
+    (incf (dm:field key "access-count"))
+    (dm:save key)))

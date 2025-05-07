@@ -19,6 +19,9 @@
       <meta property="og:image:alt" content="Header" />
       <meta name="twitter:card" content="summary_large_image">
     </c:when>
+    <c:when test="code">
+      <link @href="keygen/feed/{0}?authcode={1} code authcode" type="application/atom+xml" rel="alternate" title="Update Atom Feed"/>
+    </c:when>
   </head>
   <body>
     <header>

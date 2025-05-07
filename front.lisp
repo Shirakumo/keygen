@@ -43,28 +43,25 @@
 (define-page public "keygen/access(?:/(.*))?" (:uri-groups (code))
   (let ((code (or code (post/get "code"))))
     (cond (code
-           (let ((key (find-key code))
-                 (authcode (get-var "authcode")))
-             (unless (key-valid-p key authcode)
-               (error 'radiance:request-not-found))
-             (when (or (null (dm:field key "first-access")) (= 0 (dm:field key "first-access")))
-               (setf (dm:field key "first-access") (get-universal-time)))
-             (setf (dm:field key "last-access") (get-universal-time))
-             (incf (dm:field key "access-count"))
-             (dm:save key)
-             (let* ((package (ensure-package key))
-                    (project (ensure-project package)))
-               (render-page (format NIL "~a ~a" (dm:field project "title") (dm:field package "title"))
-                            (@template "access.ctml")
-                            :project project
-                            :package package
-                            :files (list-files package)
-                            :cover (project-cover project)
-                            :code code
-                            :authcode authcode
-                            :key key
-                            :description (format NIL "Access your downloads for ~a ~a" (dm:field project "title") (dm:field package "title"))))))
+           (let* ((key (access-key code (get-var "authcode")))
+                  (package (ensure-package key))
+                  (project (ensure-project package)))
+             (render-page (format NIL "~a ~a" (dm:field project "title") (dm:field package "title"))
+                          (@template "access.ctml")
+                          :project project
+                          :package package
+                          :files (list-files package)
+                          :cover (project-cover project)
+                          :code code
+                          :authcode (key-authcode key)
+                          :key key
+                          :description (format NIL "Access your downloads for ~a ~a" (dm:field project "title") (dm:field package "title")))))
           (T
            (render-page (config :title) (@template "frontpage.ctml")
                         :cover NIL
                         :description "Access a software package via your personal download key")))))
+
+(define-page feed "keygen/feed(?:/(.*))?" (:uri-groups (code))
+  (let ((feed (make-feed (access-key (or code (post/get "code") "") (get-var "authcode")))))
+    (setf (content-type *response*) "application/atom+xml; charset=utf-8")
+    (plump:serialize feed NIL)))

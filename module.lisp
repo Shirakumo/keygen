@@ -3,7 +3,8 @@
   (:use #:cl #:radiance)
   (:shadow #:make-package #:delete-package #:edit-package #:ensure-package #:delete-file #:file)
   (:export)
-  (:local-nicknames))
+  (:local-nicknames
+   (#:feeder #:org.shirakumo.feeder)))
 (in-package #:keygen)
 
 (define-trigger startup ()

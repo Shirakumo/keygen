@@ -105,8 +105,10 @@
 (defun unparse-types (types)
   (format NIL "~{~a~^, ~}" (map 'list #'type-name types)))
 
-(defun format-text (text)
-  (org.shirakumo.markless:output
-   text
-   :target (plump:make-root)
-   :format 'org.shirakumo.markless.plump:plump))
+(defun format-text (&rest text)
+  (let ((target (plump:make-root)))
+    (dolist (text text target)
+      (org.shirakumo.markless:output
+       text
+       :target target
+       :format 'org.shirakumo.markless.plump:plump))))
